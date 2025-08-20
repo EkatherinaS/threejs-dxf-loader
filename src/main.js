@@ -1,7 +1,7 @@
 import "./style.css";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { DXFLibLoader } from "./loaders/dxfLib2D.js";
+import { DXFLibLoader } from "./loaders/dxfLib3D.js";
 
 function animate() {
   requestAnimationFrame(animate);
@@ -32,11 +32,15 @@ controls.enableDamping = true;
 document.body.appendChild(renderer.domElement);
 renderer.render(scene, camera);
 
+//const loader = new DXFLibLoader();
+//loader.parseDxf("/public/models/cube.dxf");
+
 const loader = new DXFLibLoader();
 loader.load(
-  "/public/models/cube.dxf",
+  "/public/models/model.dxf",
   (model) => {
     console.log("loaded");
+    console.log(model.entities);
     model.entities.forEach((entity) => {
       scene.add(entity);
     });
@@ -51,8 +55,3 @@ loader.load(
 );
 
 animate();
-
-// const geom = new THREE.BoxGeometry();
-// const mat = new THREE.MeshBasicMaterial("#abcdef");
-// const cube = new THREE.Mesh(geom, mat);
-// scene.add(cube);
