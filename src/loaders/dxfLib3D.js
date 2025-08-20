@@ -5,6 +5,7 @@ import {
   LineBasicMaterial,
   BufferGeometry,
   Line,
+  Vector2,
 } from "three";
 
 var AUTO_CAD_COLOR_INDEX = [
@@ -696,6 +697,141 @@ var EllipseParser = /** @class */ (function () {
     return entity;
   };
   return EllipseParser;
+})();
+
+function parse3dCreases(scanner, curr) {
+  var creases = [];
+  const count = curr.value;
+  curr = scanner.next();
+  for (var i = 0; i < count; i++) {
+    if (curr.code != 140) return creases;
+    creases.push(curr.value);
+    curr = scanner.next();
+  }
+  scanner.rewind();
+  return creases;
+}
+
+function parse3dEdges(scanner, curr) {
+  var edges = [];
+  const count = curr.value;
+  curr = scanner.next();
+  for (var i = 0; i < count; i++) {
+    var edge = [];
+    for (var j = 0; j < 2; j++) {
+      if (curr.code != 90) return edges;
+      curr = scanner.next();
+      edge.push(curr.value);
+    }
+    edges.push(edge);
+  }
+  scanner.rewind();
+  return edges;
+}
+
+function parse3dFaces(scanner, curr) {
+  var faces = [];
+  const count = curr.value;
+  curr = scanner.next();
+  for (var i = 0; i < count; i++) {
+    var face = [];
+    var faceCount = curr.value;
+    while (faceCount > 0) {
+      if (curr.code != 90) return faces;
+      curr = scanner.next();
+      faceCount--;
+      face.push(curr.value);
+    }
+    faces.push(face);
+    curr = scanner.next();
+  }
+  scanner.rewind();
+  return faces;
+}
+
+function parse3dVertices(scanner, curr) {
+  var vertices = [];
+  var vertexIsFinished = false;
+  const count = curr.value;
+  curr = scanner.next();
+  for (var i = 0; i < count; i++) {
+    var vertex = {};
+    while (!vertexIsFinished) {
+      switch (curr.code) {
+        case 10: // X
+          vertex.x = curr.value;
+          break;
+        case 20: // Y
+          vertex.y = curr.value;
+          break;
+        case 30: // Z
+          vertex.z = curr.value;
+          vertexIsFinished = true;
+          break;
+        default:
+          return vertices;
+      }
+      curr = scanner.next();
+    }
+    vertices.push(vertex);
+    vertexIsFinished = false;
+  }
+  scanner.rewind();
+  return vertices;
+}
+
+//https://ezdxf.readthedocs.io/en/stable/dxfinternals/entities/mesh.html#mesh-internals
+var MeshParser = /** @class */ (function () {
+  function MeshParser() {
+    this.ForEntityName = "MESH";
+  }
+
+  MeshParser.prototype.parseEntity = function (scanner, curr) {
+    var entity = { type: curr.value };
+    curr = scanner.next();
+    while (!scanner.isEOF()) {
+      if (curr.code === 0) {
+        break;
+      }
+      switch (curr.code) {
+        case 71:
+          entity.version = curr.value;
+          break;
+        case 72:
+          entity.blend_crease = curr.value; //0 = off, 1 = on
+          break;
+        case 91:
+          entity.subdivision_levels = curr.value; //0 for no smoothing else integer greater than 0
+          break;
+        case 92:
+          entity.vertex_count = curr.value;
+          entity.vertices = parse3dVertices(scanner, curr, entity.vertex_count);
+          curr = scanner.lastReadGroup;
+          break;
+        case 93:
+          entity.face_count = curr.value;
+          entity.faces = parse3dFaces(scanner, curr, entity.face_count);
+          curr = scanner.lastReadGroup;
+          break;
+        case 94:
+          entity.edge_count = curr.value;
+          entity.edges = parse3dEdges(scanner, curr, entity.edge_count);
+          curr = scanner.lastReadGroup;
+          break;
+        case 95:
+          entity.crease_count = curr.value;
+          entity.creases = parse3dCreases(scanner, curr, entity.crease_count);
+          curr = scanner.lastReadGroup;
+          break;
+        default: // check common entity attributes
+          checkCommonEntityProperties(entity, curr, scanner);
+          break;
+      }
+      curr = scanner.next();
+    }
+    return entity;
+  };
+  return MeshParser;
 })();
 
 var InsertParser = /** @class */ (function () {
@@ -1749,6 +1885,7 @@ function registerDefaultEntityHandlers(dxfParser) {
   dxfParser.registerEntityHandler(SolidParser);
   dxfParser.registerEntityHandler(SplineParser);
   dxfParser.registerEntityHandler(TextParser);
+  dxfParser.registerEntityHandler(MeshParser);
 }
 
 function logUnhandledGroup(curr) {
