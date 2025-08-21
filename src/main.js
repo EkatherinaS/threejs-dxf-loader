@@ -15,7 +15,14 @@ const renderer = new THREE.WebGLRenderer({ canvas });
 renderer.setSize(window.innerWidth, window.innerHeight);
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color("#A9A9A9");
+scene.background = new THREE.Color("#fdfff5");
+
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(5, 10, 7.5);
+scene.add(directionalLight);
+
+const light = new THREE.AmbientLight(0x404040, 10);
+scene.add(light);
 
 const camera = new THREE.PerspectiveCamera(
   75,
