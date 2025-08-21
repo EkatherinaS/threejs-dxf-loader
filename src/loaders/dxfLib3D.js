@@ -6,6 +6,11 @@ import {
   BufferGeometry,
   Line,
   Vector2,
+  Float32BufferAttribute,
+  MeshBasicMaterial,
+  Mesh,
+  MeshPhysicalMaterial,
+  DoubleSide,
 } from "three";
 
 var AUTO_CAD_COLOR_INDEX = [
@@ -2648,7 +2653,7 @@ function getBulgeCurvePoints(startPoint, endPoint, bulge, segments) {
 
   var vertices = [];
 
-  vertices.push(new Vector3(p0.x, p0.y, 0));
+  vertices.push(new Vector3(p0.x, p0.y, p0.z));
 
   for (i = 1; i <= segments - 1; i++) {
     vertex = THREEx.Math.polar(
@@ -2656,7 +2661,7 @@ function getBulgeCurvePoints(startPoint, endPoint, bulge, segments) {
       Math.abs(radius),
       startAngle + thetaAngle * i
     );
-    vertices.push(new Vector3(vertex.x, vertex.y, 0));
+    vertices.push(new Vector3(vertex.x, vertex.y, vertex.z));
   }
 
   return vertices;
@@ -2885,6 +2890,8 @@ export class DXFLibLoader extends Loader {
         mesh = drawMtext(entity, data);
       } else if (entity.type === "ELLIPSE") {
         mesh = drawEllipse(entity, data);
+      } else if (entity.type === "MESH") {
+        mesh = drawMesh(entity, data);
       } else if (entity.type === "DIMENSION") {
         var dimTypeEnum = entity.dimensionType & 7;
         if (dimTypeEnum === 0) {
@@ -3171,6 +3178,48 @@ export class DXFLibLoader extends Loader {
       return polyline;
     }
 
+    function drawMesh(entity, data) {
+      console.log(entity);
+      if (!entity.vertices) {
+        return console.log("entity missing vertices.");
+      }
+
+      const geometry = new BufferGeometry();
+      const vertices = [];
+      const indexes = [];
+
+      entity.faces.forEach((face) => {
+        for (let i = 2; i < face.length; i++) {
+          indexes.push(face[0], face[i - 1], face[i]);
+        }
+      });
+
+      for (let i = 0; i < entity.vertices.length; i++) {
+        vertices.push(
+          entity.vertices[i].x,
+          entity.vertices[i].y,
+          entity.vertices[i].z
+        );
+      }
+
+      const color = getColor(entity, data);
+
+      geometry.setIndex(indexes);
+      geometry.setAttribute(
+        "position",
+        new Float32BufferAttribute(vertices, 3)
+      );
+      geometry.computeVertexNormals();
+
+      const material = new MeshPhysicalMaterial({
+        side: DoubleSide,
+        color: color,
+      });
+
+      const mesh = new Mesh(geometry, material);
+      return mesh;
+    }
+
     function drawLine(entity, data) {
       let points = [];
       let color = getColor(entity, data);
@@ -3201,7 +3250,7 @@ export class DXFLibLoader extends Loader {
           points.push.apply(points, bulgePoints);
         } else {
           vertex = entity.vertices[i];
-          points.push(new Vector3(vertex.x, vertex.y, 0));
+          points.push(new Vector3(vertex.x, vertex.y, vertex.z));
         }
       }
       if (entity.shape) {
