@@ -10,7 +10,9 @@ import {
   MeshBasicMaterial,
   Mesh,
   MeshPhysicalMaterial,
+  Group,
   DoubleSide,
+  Object3D,
 } from "three";
 
 var AUTO_CAD_COLOR_INDEX = [
@@ -2822,7 +2824,8 @@ export class DXFLibLoader extends Loader {
   parse(text) {
     const parser = new DxfParser();
     var dxf = parser.parseSync(text);
-    return this.loadEntities(dxf, this.font, this.enableLayer);
+    const entities = this.loadEntities(dxf, this.font, this.enableLayer);
+    return entities;
   }
 
   /**
@@ -2833,8 +2836,9 @@ export class DXFLibLoader extends Loader {
   loadEntities(data, font, enableLayer) {
     createLineTypeShaders(data);
 
-    var entities = [];
-    var layers = {};
+    const entities = [];
+    const layers = {};
+    const group = new Object3D();
 
     // Create scene from dxf object (data)
     var i, entity, obj;
@@ -2845,6 +2849,7 @@ export class DXFLibLoader extends Loader {
 
       if (obj) {
         entities.push(obj);
+        group.add(obj);
         if (enableLayer && entity.layer) {
           let layerGroup = layers[entity.layer];
           if (!layerGroup) {
@@ -2857,9 +2862,11 @@ export class DXFLibLoader extends Loader {
       }
       obj = null;
     }
+
     return {
       entities: enableLayer ? Object.values(layers) : entities,
       dxf: data,
+      model: group,
     };
 
     /* Entity Type
@@ -2870,11 +2877,9 @@ export class DXFLibLoader extends Loader {
       var mesh;
       if (entity.type === "CIRCLE" || entity.type === "ARC") {
         mesh = drawArc(entity, data);
-      } else if (
-        entity.type === "LWPOLYLINE" ||
-        entity.type === "LINE" ||
-        entity.type === "POLYLINE"
-      ) {
+      } else if (entity.type === "LWPOLYLINE" || entity.type === "POLYLINE") {
+        mesh = drawPolyline(entity, data);
+      } else if (entity.type === "LINE") {
         mesh = drawLine(entity, data);
       } else if (entity.type === "TEXT") {
         mesh = drawText(entity, data);
@@ -3179,14 +3184,18 @@ export class DXFLibLoader extends Loader {
     }
 
     function drawMesh(entity, data) {
-      console.log(entity);
       if (!entity.vertices) {
         return console.log("entity missing vertices.");
       }
 
       const geometry = new BufferGeometry();
+      const color = getColor(entity, data);
       const vertices = [];
       const indexes = [];
+
+      entity.vertices.forEach((vertex) => {
+        vertices.push(vertex.x, vertex.y, vertex.z);
+      });
 
       entity.faces.forEach((face) => {
         for (let i = 2; i < face.length; i++) {
@@ -3194,15 +3203,41 @@ export class DXFLibLoader extends Loader {
         }
       });
 
-      for (let i = 0; i < entity.vertices.length; i++) {
-        vertices.push(
-          entity.vertices[i].x,
-          entity.vertices[i].y,
-          entity.vertices[i].z
-        );
+      geometry.setIndex(indexes);
+      geometry.setAttribute(
+        "position",
+        new Float32BufferAttribute(vertices, 3)
+      );
+      geometry.computeVertexNormals();
+      const material = new MeshPhysicalMaterial({
+        side: DoubleSide,
+        color: color,
+      });
+      const mesh = new Mesh(geometry, material);
+      return mesh;
+    }
+
+    function drawPolyline(entity, data) {
+      if (!entity.vertices) {
+        return console.log("entity missing vertices.");
       }
 
+      const geometry = new BufferGeometry();
       const color = getColor(entity, data);
+      const vertices = [];
+      const indexes = [];
+
+      entity.vertices.forEach((vertex) => {
+        if (vertex.threeDPolylineMesh) {
+          vertices.push(vertex.x, vertex.y, vertex.z);
+        } else {
+          indexes.push(
+            Math.abs(vertex.faceA) - 1,
+            Math.abs(vertex.faceB) - 1,
+            Math.abs(vertex.faceC) - 1
+          );
+        }
+      });
 
       geometry.setIndex(indexes);
       geometry.setAttribute(
@@ -3210,12 +3245,10 @@ export class DXFLibLoader extends Loader {
         new Float32BufferAttribute(vertices, 3)
       );
       geometry.computeVertexNormals();
-
       const material = new MeshPhysicalMaterial({
         side: DoubleSide,
         color: color,
       });
-
       const mesh = new Mesh(geometry, material);
       return mesh;
     }
