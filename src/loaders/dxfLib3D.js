@@ -13,9 +13,11 @@ import {
   Group,
   DoubleSide,
   Object3D,
+  Color,
+  Points,
 } from "three";
 
-var AUTO_CAD_COLOR_INDEX = [
+const AUTO_CAD_COLOR_INDEX = [
   0, 16711680, 16776960, 65280, 65535, 255, 16711935, 16777215, 8421504,
   12632256, 16711680, 16744319, 13369344, 13395558, 10027008, 10046540, 8323072,
   8339263, 4980736, 4990502, 16727808, 16752511, 13382400, 13401958, 10036736,
@@ -49,13 +51,13 @@ var AUTO_CAD_COLOR_INDEX = [
   14079702, 16777215,
 ];
 
-var FaceParser = /** @class */ (function () {
+const FaceParser = /** @class */ (function () {
   function FaceParser() {
     this.ForEntityName = "3DFACE";
   }
 
   FaceParser.prototype.parseEntity = function (scanner, curr) {
-    var entity = {
+    const entity = {
       type: curr.value,
       vertices: [],
     };
@@ -84,13 +86,13 @@ var FaceParser = /** @class */ (function () {
   return FaceParser;
 })();
 
-var ArcParser = /** @class */ (function () {
+const ArcParser = /** @class */ (function () {
   function ArcParser() {
     this.ForEntityName = "ARC";
   }
 
   ArcParser.prototype.parseEntity = function (scanner, curr) {
-    var entity = { type: curr.value };
+    const entity = { type: curr.value };
     curr = scanner.next();
     while (!scanner.isEOF()) {
       if (curr.code === 0) {
@@ -130,13 +132,13 @@ var ArcParser = /** @class */ (function () {
   return ArcParser;
 })();
 
-var AttDefParser = /** @class */ (function () {
+const AttDefParser = /** @class */ (function () {
   function AttDefParser() {
     this.ForEntityName = "ATTDEF";
   }
 
   AttDefParser.prototype.parseEntity = function (scanner, curr) {
-    var entity = {
+    const entity = {
       type: curr.value,
       scale: 1,
       textStyle: "STANDARD",
@@ -223,13 +225,13 @@ var AttDefParser = /** @class */ (function () {
   return AttDefParser;
 })();
 
-var CircleParser = /** @class */ (function () {
+const CircleParser = /** @class */ (function () {
   function CircleParser() {
     this.ForEntityName = "CIRCLE";
   }
 
   CircleParser.prototype.parseEntity = function (scanner, curr) {
-    var entity = { type: curr.value };
+    const entity = { type: curr.value };
     curr = scanner.next();
     while (!scanner.isEOF()) {
       if (curr.code === 0) {
@@ -246,7 +248,7 @@ var CircleParser = /** @class */ (function () {
           entity.startAngle = (Math.PI / 180) * curr.value;
           break;
         case 51: // end angle
-          var endAngle = (Math.PI / 180) * curr.value;
+          const endAngle = (Math.PI / 180) * curr.value;
           if (endAngle < entity.startAngle) {
             entity.angleLength = endAngle + 2 * Math.PI - entity.startAngle;
           } else {
@@ -265,13 +267,13 @@ var CircleParser = /** @class */ (function () {
   return CircleParser;
 })();
 
-var DimensionParser = /** @class */ (function () {
+const DimensionParser = /** @class */ (function () {
   function DimensionParser() {
     this.ForEntityName = "DIMENSION";
   }
 
   DimensionParser.prototype.parseEntity = function (scanner, curr) {
-    var entity = { type: curr.value };
+    const entity = { type: curr.value };
     curr = scanner.next();
     while (!scanner.isEOF()) {
       if (curr.code === 0) {
@@ -328,13 +330,13 @@ var DimensionParser = /** @class */ (function () {
   return DimensionParser;
 })();
 
-var MLeaderParser = /** @class */ (function () {
+const MLeaderParser = /** @class */ (function () {
   function MLeaderParser() {
     this.ForEntityName = "MULTILEADER";
   }
 
   MLeaderParser.prototype.parseEntity = function (scanner, curr) {
-    var entity = { type: curr.value };
+    const entity = { type: curr.value };
     entity.contextData = {
       leaders: [],
     };
@@ -601,7 +603,7 @@ var MLeaderParser = /** @class */ (function () {
     }
 
     function parseLeaderData() {
-      var leader = {
+      const leader = {
         leaderLines: [],
       };
       entity.contextData.leaders.push(leader);
@@ -638,9 +640,9 @@ var MLeaderParser = /** @class */ (function () {
     }
 
     function parseLeaderLineData() {
-      var leader =
+      const leader =
         entity.contextData.leaders[entity.contextData.leaders.length - 1];
-      var line = {
+      const line = {
         vertices: [[]],
       };
       leader.leaderLines.push(line);
@@ -664,13 +666,13 @@ var MLeaderParser = /** @class */ (function () {
   return MLeaderParser;
 })();
 
-var EllipseParser = /** @class */ (function () {
+const EllipseParser = /** @class */ (function () {
   function EllipseParser() {
     this.ForEntityName = "ELLIPSE";
   }
 
   EllipseParser.prototype.parseEntity = function (scanner, curr) {
-    var entity = { type: curr.value };
+    const entity = { type: curr.value };
     curr = scanner.next();
     while (!scanner.isEOF()) {
       if (curr.code === 0) {
@@ -707,10 +709,10 @@ var EllipseParser = /** @class */ (function () {
 })();
 
 function parse3dCreases(scanner, curr) {
-  var creases = [];
+  const creases = [];
   const count = curr.value;
   curr = scanner.next();
-  for (var i = 0; i < count; i++) {
+  for (let i = 0; i < count; i++) {
     if (curr.code != 140) return creases;
     creases.push(curr.value);
     curr = scanner.next();
@@ -720,12 +722,12 @@ function parse3dCreases(scanner, curr) {
 }
 
 function parse3dEdges(scanner, curr) {
-  var edges = [];
+  const edges = [];
   const count = curr.value;
   curr = scanner.next();
-  for (var i = 0; i < count; i++) {
-    var edge = [];
-    for (var j = 0; j < 2; j++) {
+  for (let i = 0; i < count; i++) {
+    const edge = [];
+    for (let j = 0; j < 2; j++) {
       if (curr.code != 90) return edges;
       curr = scanner.next();
       edge.push(curr.value);
@@ -737,12 +739,12 @@ function parse3dEdges(scanner, curr) {
 }
 
 function parse3dFaces(scanner, curr) {
-  var faces = [];
+  const faces = [];
   const count = curr.value;
   curr = scanner.next();
-  for (var i = 0; i < count; i++) {
-    var face = [];
-    var faceCount = curr.value;
+  for (let i = 0; i < count; i++) {
+    const face = [];
+    let faceCount = curr.value;
     while (faceCount > 0) {
       if (curr.code != 90) return faces;
       curr = scanner.next();
@@ -757,12 +759,12 @@ function parse3dFaces(scanner, curr) {
 }
 
 function parse3dVertices(scanner, curr) {
-  var vertices = [];
-  var vertexIsFinished = false;
+  const vertices = [];
+  let vertexIsFinished = false;
   const count = curr.value;
   curr = scanner.next();
-  for (var i = 0; i < count; i++) {
-    var vertex = {};
+  for (let i = 0; i < count; i++) {
+    const vertex = {};
     while (!vertexIsFinished) {
       switch (curr.code) {
         case 10: // X
@@ -788,13 +790,13 @@ function parse3dVertices(scanner, curr) {
 }
 
 //https://ezdxf.readthedocs.io/en/stable/dxfinternals/entities/mesh.html#mesh-internals
-var MeshParser = /** @class */ (function () {
+const MeshParser = /** @class */ (function () {
   function MeshParser() {
     this.ForEntityName = "MESH";
   }
 
   MeshParser.prototype.parseEntity = function (scanner, curr) {
-    var entity = { type: curr.value };
+    const entity = { type: curr.value };
     curr = scanner.next();
     while (!scanner.isEOF()) {
       if (curr.code === 0) {
@@ -841,13 +843,13 @@ var MeshParser = /** @class */ (function () {
   return MeshParser;
 })();
 
-var InsertParser = /** @class */ (function () {
+const InsertParser = /** @class */ (function () {
   function InsertParser() {
     this.ForEntityName = "INSERT";
   }
 
   InsertParser.prototype.parseEntity = function (scanner, curr) {
-    var entity = { type: curr.value };
+    const entity = { type: curr.value };
     curr = scanner.next();
     while (!scanner.isEOF()) {
       if (curr.code === 0) {
@@ -898,13 +900,13 @@ var InsertParser = /** @class */ (function () {
   return InsertParser;
 })();
 
-var LineParser = /** @class */ (function () {
+const LineParser = /** @class */ (function () {
   function LineParser() {
     this.ForEntityName = "LINE";
   }
 
   LineParser.prototype.parseEntity = function (scanner, curr) {
-    var entity = {
+    const entity = {
       type: curr.value,
       vertices: [],
     };
@@ -936,17 +938,17 @@ var LineParser = /** @class */ (function () {
   return LineParser;
 })();
 
-var LWPolylineParser = /** @class */ (function () {
+const LWPolylineParser = /** @class */ (function () {
   function LWPolylineParser() {
     this.ForEntityName = "LWPolyline";
   }
 
   LWPolylineParser.prototype.parseEntity = function (scanner, curr) {
-    var entity = {
+    const entity = {
       type: curr.value,
       vertices: [],
     };
-    var numberOfVertices = 0;
+    let numberOfVertices = 0;
     curr = scanner.next();
     while (!scanner.isEOF()) {
       if (curr.code === 0) {
@@ -994,13 +996,13 @@ var LWPolylineParser = /** @class */ (function () {
   return LWPolylineParser;
 })();
 
-var MTextParser = /** @class */ (function () {
+const MTextParser = /** @class */ (function () {
   function MTextParser() {
     this.ForEntityName = "MTEXT";
   }
 
   MTextParser.prototype.parseEntity = function (scanner, curr) {
-    var entity = { type: curr.value };
+    const entity = { type: curr.value };
     curr = scanner.next();
     while (!scanner.isEOF()) {
       if (curr.code === 0) {
@@ -1050,14 +1052,14 @@ var MTextParser = /** @class */ (function () {
   return MTextParser;
 })();
 
-var PointParser = /** @class */ (function () {
+const PointParser = /** @class */ (function () {
   function PointParser() {
     this.ForEntityName = "POINT";
   }
 
   PointParser.prototype.parseEntity = function (scanner, curr) {
-    var type = curr.value;
-    var entity = { type: type };
+    const type = curr.value;
+    const entity = { type: type };
     curr = scanner.next();
     while (!scanner.isEOF()) {
       if (curr.code === 0) {
@@ -1086,13 +1088,13 @@ var PointParser = /** @class */ (function () {
   return PointParser;
 })();
 
-var VertexParser = /** @class */ (function () {
+const VertexParser = /** @class */ (function () {
   function VertexParser() {
     this.ForEntityName = "VERTEX";
   }
 
   VertexParser.prototype.parseEntity = function (scanner, curr) {
-    var entity = { type: curr.value };
+    const entity = { type: curr.value };
     curr = scanner.next();
     while (!scanner.isEOF()) {
       if (curr.code === 0) {
@@ -1151,13 +1153,13 @@ var VertexParser = /** @class */ (function () {
   return VertexParser;
 })();
 
-var PolylineParser = /** @class */ (function () {
+const PolylineParser = /** @class */ (function () {
   function PolylineParser() {
     this.ForEntityName = "POLYLINE";
   }
 
   PolylineParser.prototype.parseEntity = function (scanner, curr) {
-    var entity = {
+    const entity = {
       type: curr.value,
       vertices: [],
     };
@@ -1215,13 +1217,13 @@ var PolylineParser = /** @class */ (function () {
   return PolylineParser;
 })();
 
-var SolidParser = /** @class */ (function () {
+const SolidParser = /** @class */ (function () {
   function SolidParser() {
     this.ForEntityName = "SOLID";
   }
 
   SolidParser.prototype.parseEntity = function (scanner, curr) {
-    var entity = {
+    const entity = {
       type: curr.value,
       points: [],
     };
@@ -1257,13 +1259,13 @@ var SolidParser = /** @class */ (function () {
   return SolidParser;
 })();
 
-var SplineParser = /** @class */ (function () {
+const SplineParser = /** @class */ (function () {
   function SplineParser() {
     this.ForEntityName = "SPLINE";
   }
 
   SplineParser.prototype.parseEntity = function (scanner, curr) {
-    var entity = { type: curr.value };
+    const entity = { type: curr.value };
     curr = scanner.next();
     while (!scanner.isEOF()) {
       if (curr.code === 0) {
@@ -1338,13 +1340,13 @@ var SplineParser = /** @class */ (function () {
   return SplineParser;
 })();
 
-var TextParser = /** @class */ (function () {
+const TextParser = /** @class */ (function () {
   function TextParser() {
     this.ForEntityName = "TEXT";
   }
 
   TextParser.prototype.parseEntity = function (scanner, curr) {
-    var entity = { type: curr.value };
+    const entity = { type: curr.value };
     curr = scanner.next();
     while (!scanner.isEOF()) {
       if (curr.code === 0) {
@@ -1398,7 +1400,7 @@ var TextParser = /** @class */ (function () {
  * @param data - an array where each element represents a line in the dxf file
  * @constructor
  */
-var DxfArrayScanner = /** @class */ (function () {
+const DxfArrayScanner = /** @class */ (function () {
   function DxfArrayScanner(data) {
     this._pointer = 0;
     this._eof = false;
@@ -1421,7 +1423,7 @@ var DxfArrayScanner = /** @class */ (function () {
         throw new Error("Cannot call 'next' after EOF group has been read");
       }
     }
-    var group = {
+    const group = {
       code: parseInt(this._data[this._pointer]),
     };
     this._pointer++;
@@ -1444,7 +1446,7 @@ var DxfArrayScanner = /** @class */ (function () {
         throw new Error("Cannot call 'next' after EOF group has been read");
       }
     }
-    var group = {
+    const group = {
       code: parseInt(this._data[this._pointer]),
     };
     group.value = parseGroupValue(
@@ -1602,11 +1604,11 @@ function parseGroupValue(code, value) {
  * @param {*} scanner
  */
 function parsePoint(scanner) {
-  var point = {};
+  const point = {};
   // Reread group for the first coordinate
   scanner.rewind();
-  var curr = scanner.next();
-  var code = curr.code;
+  let curr = scanner.next();
+  let code = curr.code;
   point.x = curr.value;
   code += 10;
   curr = scanner.next();
@@ -1640,9 +1642,9 @@ function parsePoint(scanner) {
 function parseMatrix(scanner, groupCode) {
   // Reread group for the first coordinate
   scanner.rewind();
-  var matrix = [];
-  for (var i = 0; i < 16; i++) {
-    var curr = scanner.next();
+  const matrix = [];
+  for (let i = 0; i < 16; i++) {
+    let curr = scanner.next();
     if (curr.code !== groupCode) {
       throw new Error(
         "Expected code for matrix value to be " +
@@ -1658,12 +1660,12 @@ function parseMatrix(scanner, groupCode) {
 }
 
 function parse3dFaceVertices(scanner, curr) {
-  var vertices = [];
-  var vertexIsStarted = false;
-  var vertexIsFinished = false;
-  var verticesPer3dFace = 4; // there can be up to four vertices per face, although 3 is most used for TIN
-  for (var i = 0; i <= verticesPer3dFace; i++) {
-    var vertex = {};
+  const vertices = [];
+  let vertexIsStarted = false;
+  let vertexIsFinished = false;
+  const verticesPer3dFace = 4; // there can be up to four vertices per face, although 3 is most used for TIN
+  for (let i = 0; i <= verticesPer3dFace; i++) {
+    const vertex = {};
     while (!scanner.isEOF()) {
       if (curr.code === 0 || vertexIsFinished) {
         break;
@@ -1712,12 +1714,12 @@ function parseLWPolylineVertices(n, scanner) {
   if (!n || n <= 0) {
     throw Error("n must be greater than 0 verticies");
   }
-  var vertices = [];
-  var vertexIsStarted = false;
-  var vertexIsFinished = false;
-  var curr = scanner.lastReadGroup;
-  for (var i = 0; i < n; i++) {
-    var vertex = {};
+  const vertices = [];
+  let vertexIsStarted = false;
+  let vertexIsFinished = false;
+  let curr = scanner.lastReadGroup;
+  for (let i = 0; i < n; i++) {
+    const vertex = {};
     while (!scanner.isEOF()) {
       if (curr.code === 0 || vertexIsFinished) {
         break;
@@ -1769,8 +1771,8 @@ function parseLWPolylineVertices(n, scanner) {
 }
 
 function parsePolylineVertices(scanner, curr) {
-  var vertex = new VertexParser();
-  var vertices = [];
+  const vertex = new VertexParser();
+  const vertices = [];
   while (!scanner.isEOF()) {
     if (curr.code === 0) {
       if (curr.value === "VERTEX") {
@@ -1786,7 +1788,7 @@ function parsePolylineVertices(scanner, curr) {
 }
 
 function parseSeqEnd(scanner, curr) {
-  var entity = { type: curr.value };
+  const entity = { type: curr.value };
   curr = scanner.next();
   while (!scanner.isEOF()) {
     if (curr.code == 0) {
@@ -1903,7 +1905,7 @@ function debugCode(curr) {
   return curr.code + ":" + curr.value;
 }
 
-var DxfParser = /** @class */ (function () {
+const DxfParser = /** @class */ (function () {
   function DxfParser() {
     this._entityHandlers = {};
     registerDefaultEntityHandlers(this);
@@ -1918,22 +1920,22 @@ var DxfParser = /** @class */ (function () {
     }
   };
   DxfParser.prototype.registerEntityHandler = function (handlerType) {
-    var instance = new handlerType();
+    const instance = new handlerType();
     this._entityHandlers[instance.ForEntityName] = instance;
   };
   DxfParser.prototype.parseSync = function (source) {
     return this.parse(source);
   };
   DxfParser.prototype._parse = function (dxfString) {
-    var dxf = {};
-    var lastHandle = 0;
-    var dxfLinesArray = dxfString.split(/\r\n|\r|\n/g);
-    var scanner = new DxfArrayScanner(dxfLinesArray);
+    const dxf = {};
+    const lastHandle = 0;
+    const dxfLinesArray = dxfString.split(/\r\n|\r|\n/g);
+    const scanner = new DxfArrayScanner(dxfLinesArray);
     if (!scanner.hasNext()) {
       throw Error("Empty file");
     }
-    var self = this;
-    var curr;
+    const self = this;
+    let curr;
 
     function parseAll() {
       curr = scanner.next();
@@ -1986,9 +1988,9 @@ var DxfParser = /** @class */ (function () {
       //  $ACADVER, $VIEWDIR, $VIEWSIZE, $VIEWCTR, $TDCREATE, $TDUPDATE
       // http://www.autodesk.com/techpubs/autocad/acadr14/dxf/header_section_al_u05_c.htm
       // Also see VPORT table entries
-      var currVarName = null;
-      var currVarValue = null;
-      var header = {};
+      let currVarName = null;
+      let currVarValue = null;
+      const header = {};
       // loop through header variables
       curr = scanner.next();
       while (true) {
@@ -2025,7 +2027,7 @@ var DxfParser = /** @class */ (function () {
      *
      */
     function parseBlocks() {
-      var blocks = {};
+      const blocks = {};
       curr = scanner.next();
       while (curr.value !== "EOF") {
         if (groupIs(curr, 0, "ENDSEC")) {
@@ -2033,7 +2035,7 @@ var DxfParser = /** @class */ (function () {
         }
         if (groupIs(curr, 0, "BLOCK")) {
           //console.log('block {');
-          var block = parseBlock();
+          const block = parseBlock();
           //console.log('}');
           ensureHandle(block);
           if (!block.name) {
@@ -2052,7 +2054,7 @@ var DxfParser = /** @class */ (function () {
     }
 
     function parseBlock() {
-      var block = {};
+      const block = {};
       curr = scanner.next();
       while (curr.value !== "EOF") {
         switch (curr.code) {
@@ -2128,7 +2130,7 @@ var DxfParser = /** @class */ (function () {
      * @return {Object} Object representing tables
      */
     function parseTables() {
-      var tables = {};
+      const tables = {};
       curr = scanner.next();
       while (curr.value !== "EOF") {
         if (groupIs(curr, 0, "ENDSEC")) {
@@ -2136,7 +2138,7 @@ var DxfParser = /** @class */ (function () {
         }
         if (groupIs(curr, 0, "TABLE")) {
           curr = scanner.next();
-          var tableDefinition = tableDefinitions[curr.value];
+          const tableDefinition = tableDefinitions[curr.value];
           if (tableDefinition) {
             //console.log(curr.value + ' Table {');
             tables[tableDefinitions[curr.value].tableName] = parseTable(curr);
@@ -2153,12 +2155,12 @@ var DxfParser = /** @class */ (function () {
       return tables;
     }
 
-    var END_OF_TABLE_VALUE = "ENDTAB";
+    const END_OF_TABLE_VALUE = "ENDTAB";
 
     function parseTable(group) {
-      var tableDefinition = tableDefinitions[group.value];
-      var table = {};
-      var expectedCount = 0;
+      const tableDefinition = tableDefinitions[group.value];
+      const table = {};
+      let expectedCount = 0;
       curr = scanner.next();
       while (!groupIs(curr, 0, END_OF_TABLE_VALUE)) {
         switch (curr.code) {
@@ -2197,9 +2199,9 @@ var DxfParser = /** @class */ (function () {
             curr = scanner.next();
         }
       }
-      var tableRecords = table[tableDefinition.tableRecordsProperty];
+      const tableRecords = table[tableDefinition.tableRecordsProperty];
       if (tableRecords) {
-        var actualCount = (function () {
+        const actualCount = (function () {
           if (tableRecords.constructor === Array) {
             return tableRecords.length;
           } else if (typeof tableRecords === "object") {
@@ -2216,8 +2218,8 @@ var DxfParser = /** @class */ (function () {
     }
 
     function parseViewPortRecords() {
-      var viewPorts = []; // Multiple table entries may have the same name indicating a multiple viewport configuration
-      var viewPort = {};
+      const viewPorts = []; // Multiple table entries may have the same name indicating a multiple viewport configuration
+      let viewPort = {};
       //console.log('ViewPort {');
       curr = scanner.next();
       while (!groupIs(curr, 0, END_OF_TABLE_VALUE)) {
@@ -2345,10 +2347,10 @@ var DxfParser = /** @class */ (function () {
     }
 
     function parseLineTypes() {
-      var ltypes = {};
-      var ltype = {};
-      var length = 0;
-      var ltypeName;
+      const ltypes = {};
+      let ltype = {};
+      let length = 0;
+      let ltypeName;
       //console.log('LType {');
       curr = scanner.next();
       while (!groupIs(curr, 0, "ENDTAB")) {
@@ -2397,9 +2399,9 @@ var DxfParser = /** @class */ (function () {
     }
 
     function parseLayers() {
-      var layers = {};
-      var layer = {};
-      var layerName;
+      const layers = {};
+      let layer = {};
+      let layerName;
       //console.log('Layer {');
       curr = scanner.next();
       while (!groupIs(curr, 0, "ENDTAB")) {
@@ -2448,7 +2450,7 @@ var DxfParser = /** @class */ (function () {
       return layers;
     }
 
-    var tableDefinitions = {
+    const tableDefinitions = {
       VPORT: {
         tableRecordsProperty: "viewPorts",
         tableName: "viewPort",
@@ -2475,8 +2477,8 @@ var DxfParser = /** @class */ (function () {
      * @return {Array} the resulting entities
      */
     function parseEntities(forBlock) {
-      var entities = [];
-      var endingOnValue = forBlock ? "ENDBLK" : "ENDSEC";
+      const entities = [];
+      const endingOnValue = forBlock ? "ENDBLK" : "ENDSEC";
       if (!forBlock) {
         curr = scanner.next();
       }
@@ -2485,10 +2487,10 @@ var DxfParser = /** @class */ (function () {
           if (curr.value === endingOnValue) {
             break;
           }
-          var handler = self._entityHandlers[curr.value];
+          const handler = self._entityHandlers[curr.value];
           if (handler != null) {
             //console.log(curr.value + ' {');
-            var entity = handler.parseEntity(scanner, curr);
+            const entity = handler.parseEntity(scanner, curr);
             curr = scanner.lastReadGroup;
             //console.log('}');
             ensureHandle(entity);
@@ -2517,8 +2519,8 @@ var DxfParser = /** @class */ (function () {
      * @return {Object} The 2D or 3D point as an object with x, y[, z]
      */
     function parsePoint(curr) {
-      var point = {};
-      var code = curr.code;
+      const point = {};
+      let code = curr.code;
       point.x = curr.value;
       code += 10;
       curr = scanner.next();
@@ -2571,8 +2573,8 @@ const THREEx = { Math: {} };
  * @return {Number} the angle
  */
 THREEx.Math.angle2 = function (p1, p2) {
-  var v1 = new Vector2(p1.x, p1.y);
-  var v2 = new Vector2(p2.x, p2.y);
+  const v1 = new Vector2(p1.x, p1.y);
+  const v2 = new Vector2(p2.x, p2.y);
   v2.sub(v1); // sets v2 to be our chord
   v2.normalize();
   if (v2.y < 0) {
@@ -2581,7 +2583,7 @@ THREEx.Math.angle2 = function (p1, p2) {
   return Math.acos(v2.x);
 };
 THREEx.Math.polar = function (point, distance, angle) {
-  var result = {};
+  const result = {};
   result.x = point.x + distance * Math.cos(angle);
   result.y = point.y + distance * Math.sin(angle);
   return result;
@@ -2629,9 +2631,9 @@ function decodeDataUri(uri) {
  * @param segments - number of segments between the two given points
  */
 function getBulgeCurvePoints(startPoint, endPoint, bulge, segments) {
-  var vertex, i, center, p0, p1, angle, radius, startAngle, thetaAngle;
+  let vertex, i, center, p0, p1, angle, radius, startAngle, thetaAngle;
 
-  var obj = {};
+  const obj = {};
   obj.startPoint = p0 = startPoint
     ? new Vector2(startPoint.x, startPoint.y)
     : new Vector2(0, 0);
@@ -2653,7 +2655,7 @@ function getBulgeCurvePoints(startPoint, endPoint, bulge, segments) {
   startAngle = THREEx.Math.angle2(center, p0);
   thetaAngle = angle / segments;
 
-  var vertices = [];
+  const vertices = [];
 
   vertices.push(new Vector3(p0.x, p0.y, p0.z));
 
@@ -2782,8 +2784,8 @@ export class DXFLibLoader extends Loader {
   }
 
   load(url, onLoad, onProgress, onError) {
-    var scope = this;
-    var loader;
+    const scope = this;
+    let loader;
     try {
       loader = new XHRLoader(scope.manager);
     } catch {
@@ -2808,7 +2810,7 @@ export class DXFLibLoader extends Loader {
   }
 
   loadString(text, onLoad, onError) {
-    var scope = this;
+    const scope = this;
     try {
       onLoad(scope.parse(text));
     } catch (error) {
@@ -2823,7 +2825,7 @@ export class DXFLibLoader extends Loader {
 
   parse(text) {
     const parser = new DxfParser();
-    var dxf = parser.parseSync(text);
+    const dxf = parser.parseSync(text);
     const entities = this.loadEntities(dxf, this.font, this.enableLayer);
     return entities;
   }
@@ -2841,7 +2843,7 @@ export class DXFLibLoader extends Loader {
     const group = new Object3D();
 
     // Create scene from dxf object (data)
-    var i, entity, obj;
+    let i, entity, obj;
 
     for (i = 0; i < data.entities.length; i++) {
       entity = data.entities[i];
@@ -2874,7 +2876,7 @@ export class DXFLibLoader extends Loader {
           'LWPOLYLINE' | 'MTEXT' | 'POLYLINE' | 'SOLID' | 'SPLINE' | 'TEXT' | 'VERTEX'
       */
     function drawEntity(entity, data) {
-      var mesh;
+      let mesh;
       if (entity.type === "CIRCLE" || entity.type === "ARC") {
         mesh = drawArc(entity, data);
       } else if (entity.type === "LWPOLYLINE" || entity.type === "POLYLINE") {
@@ -2898,7 +2900,7 @@ export class DXFLibLoader extends Loader {
       } else if (entity.type === "MESH") {
         mesh = drawMesh(entity, data);
       } else if (entity.type === "DIMENSION") {
-        var dimTypeEnum = entity.dimensionType & 7;
+        const dimTypeEnum = entity.dimensionType & 7;
         if (dimTypeEnum === 0) {
           mesh = drawDimension(entity, data);
         } else {
@@ -2911,19 +2913,19 @@ export class DXFLibLoader extends Loader {
     }
 
     function drawEllipse(entity, data) {
-      var color = getColor(entity, data);
+      const color = getColor(entity, data);
 
-      var xrad = Math.sqrt(
+      const xrad = Math.sqrt(
         Math.pow(entity.majorAxisEndPoint.x, 2) +
           Math.pow(entity.majorAxisEndPoint.y, 2)
       );
-      var yrad = xrad * entity.axisRatio;
-      var rotation = Math.atan2(
+      const yrad = xrad * entity.axisRatio;
+      const rotation = Math.atan2(
         entity.majorAxisEndPoint.y,
         entity.majorAxisEndPoint.x
       );
 
-      var curve = new EllipseCurve(
+      const curve = new EllipseCurve(
         entity.center.x,
         entity.center.y,
         xrad,
@@ -2934,40 +2936,45 @@ export class DXFLibLoader extends Loader {
         rotation
       );
 
-      var points = curve.getPoints(50);
-      var geometry = new BufferGeometry().setFromPoints(points);
-      var material = new LineBasicMaterial({
+      const points = curve.getPoints(50);
+      const geometry = new BufferGeometry().setFromPoints(points);
+      const material = new LineBasicMaterial({
         linewidth: 1,
         color: color,
       });
 
       // Create the final object to add to the scene
-      var ellipse = new Line(geometry, material);
+      const ellipse = new Line(geometry, material);
       return ellipse;
     }
 
     function drawMtext(entity, data) {
-      var color = getColor(entity, data);
+      const color = getColor(entity, data);
 
       if (!font) {
         return console.log("font parameter not set. Ignoring text entity.");
       }
 
-      var textAndControlChars = parseDxfMTextContent(entity.text);
+      const textAndControlChars = parseDxfMTextContent(entity.text);
 
       //Note: We currently only support a single format applied to all the mtext text
-      var content = mtextContentAndFormattingToTextAndStyle(
+      const content = mtextContentAndFormattingToTextAndStyle(
         textAndControlChars,
         entity,
         color
       );
 
-      var txt = createTextForScene(content.text, content.style, entity, color);
+      const txt = createTextForScene(
+        content.text,
+        content.style,
+        entity,
+        color
+      );
       if (!txt) {
         return null;
       }
 
-      var group = new Object3D();
+      const group = new Object3D();
       group.add(txt);
       return group;
     }
@@ -2982,7 +2989,7 @@ export class DXFLibLoader extends Loader {
         textHeight: entity.height,
       };
 
-      var text = [];
+      const text = [];
       for (let item of textAndControlChars) {
         if (typeof item === "string") {
           if (item.startsWith("pxq") && item.endsWith(";")) {
@@ -2999,7 +3006,7 @@ export class DXFLibLoader extends Loader {
             text.push(item);
           }
         } else if (Array.isArray(item)) {
-          var nestedFormat = mtextContentAndFormattingToTextAndStyle(
+          const nestedFormat = mtextContentAndFormattingToTextAndStyle(
             item,
             entity,
             color
@@ -3039,7 +3046,7 @@ export class DXFLibLoader extends Loader {
         textEnt.rotation.z = (entity.rotation * Math.PI) / 180;
       }
       if (entity.directionVector) {
-        var dv = entity.directionVector;
+        const dv = entity.directionVector;
         textEnt.rotation.z = new Vector3(1, 0, 0).angleTo(
           new Vector3(dv.x, dv.y, dv.z)
         );
@@ -3099,7 +3106,7 @@ export class DXFLibLoader extends Loader {
       textEnt.sync(() => {
         if (textEnt.textAlign !== "left") {
           textEnt.geometry.computeBoundingBox();
-          var textWidth =
+          const textWidth =
             textEnt.geometry.boundingBox.max.x -
             textEnt.geometry.boundingBox.min.x;
           if (textEnt.textAlign === "center") {
@@ -3115,21 +3122,21 @@ export class DXFLibLoader extends Loader {
     }
 
     function drawSpline(entity, data) {
-      var color = getColor(entity, data);
+      const color = getColor(entity, data);
 
-      var points = getBSplinePolyline(
+      const points = getBSplinePolyline(
         entity.controlPoints,
         entity.degreeOfSplineCurve,
         entity.knotValues,
         100
       );
 
-      var geometry = new BufferGeometry().setFromPoints(points);
-      var material = new LineBasicMaterial({
+      const geometry = new BufferGeometry().setFromPoints(points);
+      const material = new LineBasicMaterial({
         linewidth: 1,
         color: color,
       });
-      var splineObject = new Line(geometry, material);
+      const splineObject = new Line(geometry, material);
 
       return splineObject;
     }
@@ -3256,7 +3263,7 @@ export class DXFLibLoader extends Loader {
     function drawLine(entity, data) {
       let points = [];
       let color = getColor(entity, data);
-      var material,
+      let material,
         lineType,
         vertex,
         startPoint,
@@ -3308,14 +3315,14 @@ export class DXFLibLoader extends Loader {
         });
       }
 
-      var geometry = new BufferGeometry().setFromPoints(points);
+      const geometry = new BufferGeometry().setFromPoints(points);
 
       line = new Line(geometry, material);
       return line;
     }
 
     function drawArc(entity, data) {
-      var startAngle, endAngle;
+      let startAngle, endAngle;
       if (entity.type === "CIRCLE") {
         startAngle = entity.startAngle || 0;
         endAngle = startAngle + 2 * Math.PI;
@@ -3324,14 +3331,14 @@ export class DXFLibLoader extends Loader {
         endAngle = entity.endAngle;
       }
 
-      var curve = new ArcCurve(0, 0, entity.radius, startAngle, endAngle);
+      const curve = new ArcCurve(0, 0, entity.radius, startAngle, endAngle);
 
-      var points = curve.getPoints(32);
-      var geometry = new BufferGeometry().setFromPoints(points);
+      const points = curve.getPoints(32);
+      const geometry = new BufferGeometry().setFromPoints(points);
 
-      var material = new LineBasicMaterial({ color: getColor(entity, data) });
+      const material = new LineBasicMaterial({ color: getColor(entity, data) });
 
-      var arc = new Line(geometry, material);
+      const arc = new Line(geometry, material);
       arc.position.x = entity.center.x;
       arc.position.y = entity.center.y;
       arc.position.z = entity.center.z;
@@ -3341,15 +3348,15 @@ export class DXFLibLoader extends Loader {
 
     function addTriangleFacingCamera(verts, p0, p1, p2) {
       // Calculate which direction the points are facing (clockwise or counter-clockwise)
-      var vector1 = new Vector3();
-      var vector2 = new Vector3();
+      const vector1 = new Vector3();
+      const vector2 = new Vector3();
       vector1.subVectors(p1, p0);
       vector2.subVectors(p2, p0);
       vector1.cross(vector2);
 
-      var v0 = new Vector3(p0.x, p0.y, p0.z);
-      var v1 = new Vector3(p1.x, p1.y, p1.z);
-      var v2 = new Vector3(p2.x, p2.y, p2.z);
+      const v0 = new Vector3(p0.x, p0.y, p0.z);
+      const v1 = new Vector3(p1.x, p1.y, p1.z);
+      const v2 = new Vector3(p2.x, p2.y, p2.z);
 
       // If z < 0 then we must draw these in reverse order
       if (vector1.z < 0) {
@@ -3360,11 +3367,10 @@ export class DXFLibLoader extends Loader {
     }
 
     function drawSolid(entity, data) {
-      var material,
-        verts,
-        geometry = new BufferGeometry();
+      let material, verts;
+      const geometry = new BufferGeometry();
 
-      var points = entity.points;
+      const points = entity.points;
       // verts = geometry.vertices;
       verts = [];
       addTriangleFacingCamera(verts, points[0], points[1], points[2]);
@@ -3377,7 +3383,7 @@ export class DXFLibLoader extends Loader {
     }
 
     function drawText(entity, data) {
-      var geometry, material, text;
+      let geometry, material, text;
 
       if (!font) {
         return console.warn(
@@ -3392,7 +3398,7 @@ export class DXFLibLoader extends Loader {
       });
 
       if (entity.rotation) {
-        var zRotation = (entity.rotation * Math.PI) / 180;
+        const zRotation = (entity.rotation * Math.PI) / 180;
         geometry.rotateZ(zRotation);
       }
 
@@ -3407,9 +3413,9 @@ export class DXFLibLoader extends Loader {
     }
 
     function drawPoint(entity, data) {
-      var geometry, material, point;
+      let material, point;
 
-      geometry = new BufferGeometry();
+      const geometry = new BufferGeometry();
 
       geometry.setAttribute(
         "position",
@@ -3419,7 +3425,7 @@ export class DXFLibLoader extends Loader {
         )
       );
 
-      var color = getColor(entity, data);
+      const color = getColor(entity, data);
 
       material = new PointsMaterial({
         size: 0.1,
@@ -3430,21 +3436,21 @@ export class DXFLibLoader extends Loader {
     }
 
     function drawDimension(entity, data) {
-      var block = data.blocks[entity.block];
+      const block = data.blocks[entity.block];
 
       if (!block || !block.entities) {
         return null;
       }
 
-      var group = new Object3D();
+      const group = new Object3D();
       // if(entity.anchorPoint) {
       //     group.position.x = entity.anchorPoint.x;
       //     group.position.y = entity.anchorPoint.y;
       //     group.position.z = entity.anchorPoint.z;
       // }
 
-      for (var i = 0; i < block.entities.length; i++) {
-        var childEntity = drawEntity(block.entities[i], data, group);
+      for (let i = 0; i < block.entities.length; i++) {
+        const childEntity = drawEntity(block.entities[i], data, group);
         if (childEntity) {
           group.add(childEntity);
         }
@@ -3454,13 +3460,13 @@ export class DXFLibLoader extends Loader {
     }
 
     function drawBlock(entity, data) {
-      var block = data.blocks[entity.name];
+      const block = data.blocks[entity.name];
 
       if (!block.entities) {
         return null;
       }
 
-      var group = new Object3D();
+      const group = new Object3D();
 
       if (entity.xScale) {
         group.scale.x = entity.xScale;
@@ -3479,8 +3485,8 @@ export class DXFLibLoader extends Loader {
         group.position.z = entity.position.z;
       }
 
-      for (var i = 0; i < block.entities.length; i++) {
-        var childEntity = drawEntity(block.entities[i], data, group);
+      for (let i = 0; i < block.entities.length; i++) {
+        const childEntity = drawEntity(block.entities[i], data, group);
         if (childEntity) {
           group.add(childEntity);
         }
@@ -3490,7 +3496,7 @@ export class DXFLibLoader extends Loader {
     }
 
     function getColor(entity, data) {
-      var color = 0x000000; //default
+      let color = 0x000000; //default
       if (entity.color) {
         color = entity.color;
       } else if (
@@ -3508,11 +3514,11 @@ export class DXFLibLoader extends Loader {
     }
 
     function createLineTypeShaders(data) {
-      var ltype, type;
+      let ltype, type;
       if (!data.tables || !data.tables.lineType) {
         return;
       }
-      var ltypes = data.tables.lineType.lineTypes;
+      const ltypes = data.tables.lineType.lineTypes;
 
       for (type in ltypes) {
         ltype = ltypes[type];
@@ -3524,9 +3530,9 @@ export class DXFLibLoader extends Loader {
     }
 
     function createDashedLineShader(pattern) {
-      var i,
-        dashedLineShader = {},
-        totalLength = 0.0;
+      let i;
+      const dashedLineShader = {};
+      let totalLength = 0.0;
 
       for (i = 0; i < pattern.length; i++) {
         totalLength += Math.abs(pattern[i]);
