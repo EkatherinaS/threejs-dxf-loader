@@ -15,9 +15,9 @@ function focusOnObject(object) {
   const distance = Math.max(size.x, size.y, size.z);
 
   camera.position.set(
-    center.x + distance,
+    center.x - distance,
     center.y + distance,
-    center.z + distance
+    center.z - distance
   );
 
   controls.target.copy(center);
@@ -42,18 +42,22 @@ controls.enableDamping = true;
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#fdfff5");
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
 directionalLight.position.set(5, 10, 7.5);
 scene.add(directionalLight);
 
-const ambientLight = new THREE.AmbientLight(0x404040, 10);
+const ambientLight = new THREE.AmbientLight(0x404040, 16);
 scene.add(ambientLight);
+
+const axesHelper = new THREE.AxesHelper(500);
+scene.add(axesHelper);
 
 const loader = new DXFLibLoader();
 loader.load(
-  "/public/models/cubeColored.dxf",
+  "/public/models/model.dxf",
   (result) => {
     console.log("loaded");
+    console.log(result);
     scene.add(result.model);
     focusOnObject(result.model);
   },
