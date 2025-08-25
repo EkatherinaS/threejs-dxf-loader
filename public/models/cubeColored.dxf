@@ -421,11 +421,11 @@ $SKPOLY
   9
 $TDCREATE
  40
-2460910.620088206
+2460913.461414769
   9
 $TDUPDATE
  40
-2460910.620093299
+2460913.461419769
   9
 $TDINDWG
  40
@@ -961,31 +961,31 @@ AcDbViewportTableRecord
  25
 0.5
  16
--0.2935335331976055
+0.721458651930064
  26
-0.9296159809183902
+-0.567967261540989
  36
--0.222827720245192
+0.3961194306934267
  17
-0.9264668170020083
+0.9483777335657013
  27
-0.9500806301130922
+0.9505347452627255
  37
-0.9862108731104744
+0.9530597927767843
  40
-5.456623410649058
+8.064505888252729
  41
 1.3333
  42
 42.81760027191017
  43
--8.627699223833991
+-12.76327247940494
  44
-16.74690077616601
+12.61132752059506
  50
 0.0
  51
-0.0000000000000004
+0.0000000000000071
  71
      1
  72
@@ -146605,7 +146605,7 @@ AcDbEntity
   8
 0
  62
-    12
+    58
 100
 AcDbPolyFaceMesh
  66
@@ -146665,7 +146665,7 @@ AcDbEntity
   8
 0
  62
-    12
+    58
 100
 AcDbVertex
 100
@@ -146689,7 +146689,7 @@ AcDbEntity
   8
 0
  62
-    12
+    58
 100
 AcDbVertex
 100
@@ -146713,7 +146713,7 @@ AcDbEntity
   8
 0
  62
-    12
+    58
 100
 AcDbVertex
 100
@@ -146737,7 +146737,7 @@ AcDbEntity
   8
 0
  62
-    12
+    58
 100
 AcDbVertex
 100
@@ -146761,7 +146761,7 @@ AcDbEntity
   8
 0
  62
-    12
+    58
 100
 AcDbFaceRecord
  10
@@ -146789,7 +146789,7 @@ AcDbEntity
   8
 0
  62
-    12
+    58
 100
 AcDbFaceRecord
  10
@@ -146817,7 +146817,7 @@ AcDbEntity
   8
 0
  62
-    12
+    58
   0
 LINE
   5
@@ -146933,7 +146933,7 @@ AcDbEntity
   8
 0
  62
-    11
+   172
 100
 AcDbPolyFaceMesh
  66
@@ -146993,7 +146993,7 @@ AcDbEntity
   8
 0
  62
-    11
+   172
 100
 AcDbVertex
 100
@@ -147017,7 +147017,7 @@ AcDbEntity
   8
 0
  62
-    11
+   172
 100
 AcDbVertex
 100
@@ -147041,7 +147041,7 @@ AcDbEntity
   8
 0
  62
-    11
+   172
 100
 AcDbVertex
 100
@@ -147065,7 +147065,7 @@ AcDbEntity
   8
 0
  62
-    11
+   172
 100
 AcDbVertex
 100
@@ -147089,7 +147089,7 @@ AcDbEntity
   8
 0
  62
-    11
+   172
 100
 AcDbFaceRecord
  10
@@ -147117,7 +147117,7 @@ AcDbEntity
   8
 0
  62
-    11
+   172
 100
 AcDbFaceRecord
  10
@@ -147145,7 +147145,7 @@ AcDbEntity
   8
 0
  62
-    11
+   172
   0
 LINE
   5
@@ -147235,7 +147235,7 @@ AcDbEntity
   8
 0
  62
-     0
+    58
 100
 AcDbLine
  10
@@ -147261,7 +147261,7 @@ AcDbEntity
   8
 0
  62
-   254
+   192
 100
 AcDbPolyFaceMesh
  66
@@ -147321,7 +147321,7 @@ AcDbEntity
   8
 0
  62
-   254
+   192
 100
 AcDbVertex
 100
@@ -147345,7 +147345,7 @@ AcDbEntity
   8
 0
  62
-   254
+   192
 100
 AcDbVertex
 100
@@ -147369,7 +147369,7 @@ AcDbEntity
   8
 0
  62
-   254
+   192
 100
 AcDbVertex
 100
@@ -147393,7 +147393,7 @@ AcDbEntity
   8
 0
  62
-   254
+   192
 100
 AcDbVertex
 100
@@ -147417,7 +147417,7 @@ AcDbEntity
   8
 0
  62
-   254
+   192
 100
 AcDbFaceRecord
  10
@@ -147445,7 +147445,7 @@ AcDbEntity
   8
 0
  62
-   254
+   192
 100
 AcDbFaceRecord
  10
@@ -147473,7 +147473,7 @@ AcDbEntity
   8
 0
  62
-   254
+   192
   0
 LINE
   5
@@ -147589,7 +147589,7 @@ AcDbEntity
   8
 0
  62
-    21
+    12
 100
 AcDbPolyFaceMesh
  66
@@ -147649,7 +147649,7 @@ AcDbEntity
   8
 0
  62
-    21
+    12
 100
 AcDbVertex
 100
@@ -147673,7 +147673,7 @@ AcDbEntity
   8
 0
  62
-    21
+    12
 100
 AcDbVertex
 100
@@ -147697,7 +147697,7 @@ AcDbEntity
   8
 0
  62
-    21
+    12
 100
 AcDbVertex
 100
@@ -147721,7 +147721,7 @@ AcDbEntity
   8
 0
  62
-    21
+    12
 100
 AcDbVertex
 100
@@ -147745,7 +147745,7 @@ AcDbEntity
   8
 0
  62
-    21
+    12
 100
 AcDbFaceRecord
  10
@@ -147773,7 +147773,7 @@ AcDbEntity
   8
 0
  62
-    21
+    12
 100
 AcDbFaceRecord
  10
@@ -147801,7 +147801,7 @@ AcDbEntity
   8
 0
  62
-    21
+    12
   0
 LINE
   5
@@ -147917,7 +147917,7 @@ AcDbEntity
   8
 0
  62
-    20
+     3
 100
 AcDbPolyFaceMesh
  66
@@ -147977,7 +147977,7 @@ AcDbEntity
   8
 0
  62
-    20
+     3
 100
 AcDbVertex
 100
@@ -148001,7 +148001,7 @@ AcDbEntity
   8
 0
  62
-    20
+     3
 100
 AcDbVertex
 100
@@ -148025,7 +148025,7 @@ AcDbEntity
   8
 0
  62
-    20
+     3
 100
 AcDbVertex
 100
@@ -148049,7 +148049,7 @@ AcDbEntity
   8
 0
  62
-    20
+     3
 100
 AcDbVertex
 100
@@ -148073,7 +148073,7 @@ AcDbEntity
   8
 0
  62
-    20
+     3
 100
 AcDbFaceRecord
  10
@@ -148101,7 +148101,7 @@ AcDbEntity
   8
 0
  62
-    20
+     3
 100
 AcDbFaceRecord
  10
@@ -148129,7 +148129,7 @@ AcDbEntity
   8
 0
  62
-    20
+     3
   0
 LINE
   5
@@ -148245,7 +148245,7 @@ AcDbEntity
   8
 0
  62
-     1
+     4
 100
 AcDbPolyFaceMesh
  66
@@ -148305,7 +148305,7 @@ AcDbEntity
   8
 0
  62
-     1
+     4
 100
 AcDbVertex
 100
@@ -148329,7 +148329,7 @@ AcDbEntity
   8
 0
  62
-     1
+     4
 100
 AcDbVertex
 100
@@ -148353,7 +148353,7 @@ AcDbEntity
   8
 0
  62
-     1
+     4
 100
 AcDbVertex
 100
@@ -148377,7 +148377,7 @@ AcDbEntity
   8
 0
  62
-     1
+     4
 100
 AcDbVertex
 100
@@ -148401,7 +148401,7 @@ AcDbEntity
   8
 0
  62
-     1
+     4
 100
 AcDbFaceRecord
  10
@@ -148429,7 +148429,7 @@ AcDbEntity
   8
 0
  62
-     1
+     4
 100
 AcDbFaceRecord
  10
@@ -148457,7 +148457,7 @@ AcDbEntity
   8
 0
  62
-     1
+     4
   0
 LINE
   5
@@ -148521,7 +148521,7 @@ AcDbEntity
   8
 0
  62
-     0
+    58
 100
 AcDbLine
  10
@@ -148677,29 +148677,9 @@ C
 100
 AcDbDictionary
   3
-A01_BLUSH_PETAL
-350
-1616
-  3
-A02_ROSE_QUARTZ
-350
-1623
-  3
-A03_PINK_EMBER
-350
-1609
-  3
-A04_SCARLET_GLOW
-350
-1630
-  3
-A05_CHERRY_BLAZE
-350
-163D
-  3
 A06_RUBY_SPARK
 350
-15FC
+1623
   3
 BYBLOCK
 350
@@ -148709,9 +148689,29 @@ BYLAYER
 350
 44
   3
+D08_BRONZED_MUSTARD
+350
+15FC
+  3
+G05_NEON_LEAF
+350
+1630
+  3
 GLOBAL
 350
 46
+  3
+H05_LAGOON_SPARK
+350
+163D
+  3
+I06_SAPPHIRE_NIGHT
+350
+1609
+  3
+J06_PLUM_SHADOW
+350
+1616
   3
 THOMTHOM_-_BEARD1
 350
@@ -149267,9 +149267,9 @@ Ekaterina
  40
 0.0
  41
-2460910.495088206
+2460913.336414769
  42
-2460910.495093299
+2460913.336419769
   1
 
  90
@@ -149319,28 +149319,6 @@ VTR_0.000_0.000_1.000_1.000_CONTRAST
   0
 MATERIAL
   5
-1616
-102
-{ACAD_REACTORS
-330
-43
-102
-}
-102
-{ACAD_XDICTIONARY
-360
-16A9
-102
-}
-330
-43
-100
-AcDbMaterial
-  1
-A01_BLUSH_PETAL
-  0
-MATERIAL
-  5
 1623
 102
 {ACAD_REACTORS
@@ -149352,94 +149330,6 @@ MATERIAL
 {ACAD_XDICTIONARY
 360
 16AB
-102
-}
-330
-43
-100
-AcDbMaterial
-  1
-A02_ROSE_QUARTZ
-  0
-MATERIAL
-  5
-1609
-102
-{ACAD_REACTORS
-330
-43
-102
-}
-102
-{ACAD_XDICTIONARY
-360
-16A7
-102
-}
-330
-43
-100
-AcDbMaterial
-  1
-A03_PINK_EMBER
-  0
-MATERIAL
-  5
-1630
-102
-{ACAD_REACTORS
-330
-43
-102
-}
-102
-{ACAD_XDICTIONARY
-360
-16AD
-102
-}
-330
-43
-100
-AcDbMaterial
-  1
-A04_SCARLET_GLOW
-  0
-MATERIAL
-  5
-163D
-102
-{ACAD_REACTORS
-330
-43
-102
-}
-102
-{ACAD_XDICTIONARY
-360
-16AF
-102
-}
-330
-43
-100
-AcDbMaterial
-  1
-A05_CHERRY_BLAZE
-  0
-MATERIAL
-  5
-15FC
-102
-{ACAD_REACTORS
-330
-43
-102
-}
-102
-{ACAD_XDICTIONARY
-360
-16A5
 102
 }
 330
@@ -149495,6 +149385,50 @@ BYLAYER
   0
 MATERIAL
   5
+15FC
+102
+{ACAD_REACTORS
+330
+43
+102
+}
+102
+{ACAD_XDICTIONARY
+360
+16A5
+102
+}
+330
+43
+100
+AcDbMaterial
+  1
+D08_BRONZED_MUSTARD
+  0
+MATERIAL
+  5
+1630
+102
+{ACAD_REACTORS
+330
+43
+102
+}
+102
+{ACAD_XDICTIONARY
+360
+16AD
+102
+}
+330
+43
+100
+AcDbMaterial
+  1
+G05_NEON_LEAF
+  0
+MATERIAL
+  5
 46
 102
 {ACAD_REACTORS
@@ -149514,6 +149448,72 @@ MATERIAL
 AcDbMaterial
   1
 GLOBAL
+  0
+MATERIAL
+  5
+163D
+102
+{ACAD_REACTORS
+330
+43
+102
+}
+102
+{ACAD_XDICTIONARY
+360
+16AF
+102
+}
+330
+43
+100
+AcDbMaterial
+  1
+H05_LAGOON_SPARK
+  0
+MATERIAL
+  5
+1609
+102
+{ACAD_REACTORS
+330
+43
+102
+}
+102
+{ACAD_XDICTIONARY
+360
+16A7
+102
+}
+330
+43
+100
+AcDbMaterial
+  1
+I06_SAPPHIRE_NIGHT
+  0
+MATERIAL
+  5
+1616
+102
+{ACAD_REACTORS
+330
+43
+102
+}
+102
+{ACAD_XDICTIONARY
+360
+16A9
+102
+}
+330
+43
+100
+AcDbMaterial
+  1
+J06_PLUM_SHADOW
   0
 MATERIAL
   5
@@ -151235,7 +151235,7 @@ XRECORD
 100
 AcDbXrecord
   1
-{2f957ab6-47b3-4e53-a830-38d88ddf8251}
+{9ddaa814-8bf3-427e-a7e4-416bafbfb46d}
   0
 XRECORD
   5
@@ -151843,20 +151843,6 @@ DictionaryVariables
   0
 DICTIONARY
   5
-16A9
-330
-1616
-100
-AcDbDictionary
-280
-     1
-  3
-ACAD_XREC_ROUNDTRIP
-360
-16AA
-  0
-DICTIONARY
-  5
 16AB
 330
 1623
@@ -151868,62 +151854,6 @@ AcDbDictionary
 ACAD_XREC_ROUNDTRIP
 360
 16AC
-  0
-DICTIONARY
-  5
-16A7
-330
-1609
-100
-AcDbDictionary
-280
-     1
-  3
-ACAD_XREC_ROUNDTRIP
-360
-16A8
-  0
-DICTIONARY
-  5
-16AD
-330
-1630
-100
-AcDbDictionary
-280
-     1
-  3
-ACAD_XREC_ROUNDTRIP
-360
-16AE
-  0
-DICTIONARY
-  5
-16AF
-330
-163D
-100
-AcDbDictionary
-280
-     1
-  3
-ACAD_XREC_ROUNDTRIP
-360
-16B0
-  0
-DICTIONARY
-  5
-16A5
-330
-15FC
-100
-AcDbDictionary
-280
-     1
-  3
-ACAD_XREC_ROUNDTRIP
-360
-16A6
   0
 DICTIONARY
   5
@@ -151955,6 +151885,34 @@ ACAD_XREC_ROUNDTRIP
   0
 DICTIONARY
   5
+16A5
+330
+15FC
+100
+AcDbDictionary
+280
+     1
+  3
+ACAD_XREC_ROUNDTRIP
+360
+16A6
+  0
+DICTIONARY
+  5
+16AD
+330
+1630
+100
+AcDbDictionary
+280
+     1
+  3
+ACAD_XREC_ROUNDTRIP
+360
+16AE
+  0
+DICTIONARY
+  5
 167B
 330
 46
@@ -151966,6 +151924,48 @@ AcDbDictionary
 ACAD_XREC_ROUNDTRIP
 360
 167C
+  0
+DICTIONARY
+  5
+16AF
+330
+163D
+100
+AcDbDictionary
+280
+     1
+  3
+ACAD_XREC_ROUNDTRIP
+360
+16B0
+  0
+DICTIONARY
+  5
+16A7
+330
+1609
+100
+AcDbDictionary
+280
+     1
+  3
+ACAD_XREC_ROUNDTRIP
+360
+16A8
+  0
+DICTIONARY
+  5
+16A9
+330
+1616
+100
+AcDbDictionary
+280
+     1
+  3
+ACAD_XREC_ROUNDTRIP
+360
+16AA
   0
 DICTIONARY
   5
@@ -152249,46 +152249,6 @@ ACAD_XREC_ROUNDTRIP
   0
 XRECORD
   5
-16AA
-102
-{ACAD_REACTORS
-330
-16A9
-102
-}
-330
-16A9
-100
-AcDbXrecord
-102
-MATERIAL
-148
-0.0
-149
-0.0
-149
-0.0
- 93
-        0
- 94
-        0
-282
-     0
- 72
-     1
- 77
-     1
-171
-     1
-175
-     1
-179
-     1
-273
-     0
-  0
-XRECORD
-  5
 16AC
 102
 {ACAD_REACTORS
@@ -152298,166 +152258,6 @@ XRECORD
 }
 330
 16AB
-100
-AcDbXrecord
-102
-MATERIAL
-148
-0.0
-149
-0.0
-149
-0.0
- 93
-        0
- 94
-        0
-282
-     0
- 72
-     1
- 77
-     1
-171
-     1
-175
-     1
-179
-     1
-273
-     0
-  0
-XRECORD
-  5
-16A8
-102
-{ACAD_REACTORS
-330
-16A7
-102
-}
-330
-16A7
-100
-AcDbXrecord
-102
-MATERIAL
-148
-0.0
-149
-0.0
-149
-0.0
- 93
-        0
- 94
-        0
-282
-     0
- 72
-     1
- 77
-     1
-171
-     1
-175
-     1
-179
-     1
-273
-     0
-  0
-XRECORD
-  5
-16AE
-102
-{ACAD_REACTORS
-330
-16AD
-102
-}
-330
-16AD
-100
-AcDbXrecord
-102
-MATERIAL
-148
-0.0
-149
-0.0
-149
-0.0
- 93
-        0
- 94
-        0
-282
-     0
- 72
-     1
- 77
-     1
-171
-     1
-175
-     1
-179
-     1
-273
-     0
-  0
-XRECORD
-  5
-16B0
-102
-{ACAD_REACTORS
-330
-16AF
-102
-}
-330
-16AF
-100
-AcDbXrecord
-102
-MATERIAL
-148
-0.0
-149
-0.0
-149
-0.0
- 93
-        0
- 94
-        0
-282
-     0
- 72
-     1
- 77
-     1
-171
-     1
-175
-     1
-179
-     1
-273
-     0
-  0
-XRECORD
-  5
-16A6
-102
-{ACAD_REACTORS
-330
-16A5
-102
-}
-330
-16A5
 100
 AcDbXrecord
 102
@@ -152569,6 +152369,86 @@ MATERIAL
   0
 XRECORD
   5
+16A6
+102
+{ACAD_REACTORS
+330
+16A5
+102
+}
+330
+16A5
+100
+AcDbXrecord
+102
+MATERIAL
+148
+0.0
+149
+0.0
+149
+0.0
+ 93
+        0
+ 94
+        0
+282
+     0
+ 72
+     1
+ 77
+     1
+171
+     1
+175
+     1
+179
+     1
+273
+     0
+  0
+XRECORD
+  5
+16AE
+102
+{ACAD_REACTORS
+330
+16AD
+102
+}
+330
+16AD
+100
+AcDbXrecord
+102
+MATERIAL
+148
+0.0
+149
+0.0
+149
+0.0
+ 93
+        0
+ 94
+        0
+282
+     0
+ 72
+     1
+ 77
+     1
+171
+     1
+175
+     1
+179
+     1
+273
+     0
+  0
+XRECORD
+  5
 167C
 102
 {ACAD_REACTORS
@@ -152592,6 +152472,126 @@ MATERIAL
         0
  94
       127
+282
+     0
+ 72
+     1
+ 77
+     1
+171
+     1
+175
+     1
+179
+     1
+273
+     0
+  0
+XRECORD
+  5
+16B0
+102
+{ACAD_REACTORS
+330
+16AF
+102
+}
+330
+16AF
+100
+AcDbXrecord
+102
+MATERIAL
+148
+0.0
+149
+0.0
+149
+0.0
+ 93
+        0
+ 94
+        0
+282
+     0
+ 72
+     1
+ 77
+     1
+171
+     1
+175
+     1
+179
+     1
+273
+     0
+  0
+XRECORD
+  5
+16A8
+102
+{ACAD_REACTORS
+330
+16A7
+102
+}
+330
+16A7
+100
+AcDbXrecord
+102
+MATERIAL
+148
+0.0
+149
+0.0
+149
+0.0
+ 93
+        0
+ 94
+        0
+282
+     0
+ 72
+     1
+ 77
+     1
+171
+     1
+175
+     1
+179
+     1
+273
+     0
+  0
+XRECORD
+  5
+16AA
+102
+{ACAD_REACTORS
+330
+16A9
+102
+}
+330
+16A9
+100
+AcDbXrecord
+102
+MATERIAL
+148
+0.0
+149
+0.0
+149
+0.0
+ 93
+        0
+ 94
+        0
 282
      0
  72

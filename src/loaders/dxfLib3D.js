@@ -3190,6 +3190,10 @@ export class DXFLibLoader extends Loader {
       return polyline;
     }
 
+    function pushWithYUp(v, x, y, z) {
+      v.push(y, z, x);
+    }
+
     function drawMesh(entity, data) {
       if (!entity.vertices) {
         return console.log("entity missing vertices.");
@@ -3201,14 +3205,16 @@ export class DXFLibLoader extends Loader {
       const indexes = [];
 
       entity.vertices.forEach((vertex) => {
-        vertices.push(vertex.x, vertex.y, vertex.z);
+        pushWithYUp(vertices, vertex.x, vertex.y, vertex.z);
       });
 
       entity.faces.forEach((face) => {
         for (let i = 2; i < face.length; i++) {
-          indexes.push(face[0], face[i - 1], face[i]);
+          pushWithYUp(indexes, face[0], face[i - 1], face[i]);
         }
       });
+
+      console.log(indexes);
 
       geometry.setIndex(indexes);
       geometry.setAttribute(
@@ -3236,9 +3242,10 @@ export class DXFLibLoader extends Loader {
 
       entity.vertices.forEach((vertex) => {
         if (vertex.threeDPolylineMesh) {
-          vertices.push(vertex.x, vertex.y, vertex.z);
+          pushWithYUp(vertices, vertex.x, vertex.y, vertex.z);
         } else {
-          indexes.push(
+          pushWithYUp(
+            indexes,
             Math.abs(vertex.faceA) - 1,
             Math.abs(vertex.faceB) - 1,
             Math.abs(vertex.faceC) - 1
