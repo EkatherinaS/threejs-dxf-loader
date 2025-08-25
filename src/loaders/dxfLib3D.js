@@ -3201,8 +3201,8 @@ export class DXFLibLoader extends Loader {
 
       const geometry = new BufferGeometry();
       const color = getColor(entity, data);
-      let vertices = [];
-      let indexes = [];
+      const vertices = [];
+      const indexes = [];
 
       entity.vertices.forEach((vertex) => {
         pushWithYUp(vertices, vertex.x, vertex.y, vertex.z);
@@ -3243,7 +3243,6 @@ export class DXFLibLoader extends Loader {
       entity.vertices.forEach((vertex) => {
         if (vertex.threeDPolylineMesh) {
           pushWithYUp(vertices, vertex.x, vertex.y, vertex.z);
-          //vertices.push(vertex.x, vertex.y, vertex.z);
         } else {
           pushWithYUp(
             indexes,
@@ -3253,8 +3252,6 @@ export class DXFLibLoader extends Loader {
           );
         }
       });
-
-      //geometry.setFromPoints(vertices);
 
       geometry.setIndex(indexes);
       geometry.setAttribute(

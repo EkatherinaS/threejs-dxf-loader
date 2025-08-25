@@ -42,22 +42,21 @@ controls.enableDamping = true;
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#fdfff5");
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
 directionalLight.position.set(5, 10, 7.5);
 scene.add(directionalLight);
 
-const ambientLight = new THREE.AmbientLight(0x404040, 16);
+const ambientLight = new THREE.AmbientLight(0x404040, 12);
 scene.add(ambientLight);
 
-const axesHelper = new THREE.AxesHelper(500);
-scene.add(axesHelper);
+//const axesHelper = new THREE.AxesHelper(500);
+//scene.add(axesHelper);
 
 const loader = new DXFLibLoader();
 loader.load(
   "/public/models/model.dxf",
   (result) => {
     console.log("loaded");
-    console.log(result);
     scene.add(result.model);
     focusOnObject(result.model);
   },
