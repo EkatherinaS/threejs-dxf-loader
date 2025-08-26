@@ -10,6 +10,7 @@ import {
   MeshBasicMaterial,
   Mesh,
   MeshPhysicalMaterial,
+  LineDashedMaterial,
   Group,
   DoubleSide,
   Object3D,
@@ -708,10 +709,23 @@ const EllipseParser = /** @class */ (function () {
   return EllipseParser;
 })();
 
+function parseValues(scanner, curr, code) {
+  const values = [];
+  if (curr.code != code) curr = scanner.next();
+  while (true) {
+    if (curr.code != code) {
+      scanner.rewind();
+      return values;
+    }
+    values.push(curr.value);
+    curr = scanner.next();
+  }
+}
+
 function parse3dCreases(scanner, curr) {
   const creases = [];
   const count = curr.value;
-  curr = scanner.next();
+
   for (let i = 0; i < count; i++) {
     if (curr.code != 140) return creases;
     creases.push(curr.value);
@@ -788,6 +802,90 @@ function parse3dVertices(scanner, curr) {
   scanner.rewind();
   return vertices;
 }
+
+//https://documentation.help/AutoCAD-DXF/WS1a9193826455f5ff18cb41610ec0a2e719-799c.htm
+const MaterialParser = /** @class */ (function () {
+  function MaterialParser() {
+    this.ForEntityName = "MATERIAL";
+  }
+
+  MaterialParser.prototype.parseEntity = function (scanner, curr) {
+    const entity = { type: curr.value };
+    curr = scanner.next();
+    while (!scanner.isEOF()) {
+      if (curr.code === 0) {
+        break;
+      }
+      switch (curr.code) {
+        case 1:
+          entity.name = curr.value;
+          break;
+        case 2:
+          entity.description = curr.value;
+          break;
+        case 72:
+          entity.normalMapSource = curr.value;
+          break;
+        case 43:
+          entity.normalMapperTransform = parseValues(scanner, curr, 43);
+          break;
+        case 77:
+          entity.specularMapSource = curr.value;
+          break;
+        case 47:
+          entity.transformMatrixOfSpecularMapMapper = parseValues(
+            scanner,
+            curr,
+            47
+          );
+          break;
+        case 171:
+          entity.reflectionMapSource = curr.value;
+          break;
+        case 49:
+          entity.transformMatrixOfReflectionMapMapper = parseValues(
+            scanner,
+            curr,
+            49
+          );
+          break;
+        case 175:
+          entity.opacityMapSource = curr.value;
+          break;
+        case 142:
+          entity.transformMatrixOfOpacityMapMapper = parseValues(
+            scanner,
+            curr,
+            142
+          );
+          break;
+        case 179:
+          entity.bumpMapSource = curr.value;
+          break;
+        case 144:
+          entity.transformMatrixOfBumpMapMapper = parseValues(
+            scanner,
+            curr,
+            144
+          );
+          break;
+        case 147:
+          entity.transformMatrixOfRefractionMapMapper = parseValues(
+            scanner,
+            curr,
+            147
+          );
+          break;
+        default: // check common entity attributes
+          checkCommonEntityProperties(entity, curr, scanner);
+          break;
+      }
+      curr = scanner.next();
+    }
+    return entity;
+  };
+  return MaterialParser;
+})();
 
 //https://ezdxf.readthedocs.io/en/stable/dxfinternals/entities/mesh.html#mesh-internals
 const MeshParser = /** @class */ (function () {
@@ -1895,6 +1993,7 @@ function registerDefaultEntityHandlers(dxfParser) {
   dxfParser.registerEntityHandler(SplineParser);
   dxfParser.registerEntityHandler(TextParser);
   dxfParser.registerEntityHandler(MeshParser);
+  dxfParser.registerEntityHandler(MaterialParser);
 }
 
 function logUnhandledGroup(curr) {
@@ -1969,8 +2068,10 @@ const DxfParser = /** @class */ (function () {
             //console.log('<');
           } else if (curr.value === "EOF") {
             //console.log('EOF');
+          } else if (curr.value === "OBJECTS") {
+            dxf.objects = parseObjects();
           } else {
-            //console.warn('Skipping section \'%s\'', curr.value);
+            //console.warn("Skipping section '%s'", curr.value);
           }
         } else {
           curr = scanner.next();
@@ -2326,9 +2427,9 @@ const DxfParser = /** @class */ (function () {
           case 0:
             // New ViewPort
             if (curr.value === "VPORT") {
-              console.log("}");
+              //console.log("}");
               viewPorts.push(viewPort);
-              console.log("ViewPort {");
+              //console.log("ViewPort {");
               viewPort = {};
               curr = scanner.next();
             }
@@ -2470,6 +2571,39 @@ const DxfParser = /** @class */ (function () {
         parseTableRecords: parseLayers,
       },
     };
+
+    /**
+     * Is called after the parser first reads the 0:OBJECTS group. The scanner
+     * should be on the start of the first entity already.
+     * @return {Array} the resulting entities
+     */
+    function parseObjects() {
+      const objects = [];
+      const endingOnValue = "ENDSEC";
+      curr = scanner.next();
+      while (true) {
+        if (curr.code === 0) {
+          if (curr.value === endingOnValue) {
+            break;
+          }
+          const handler = self._entityHandlers[curr.value];
+          if (handler != null) {
+            const object = handler.parseEntity(scanner, curr);
+            curr = scanner.lastReadGroup;
+            ensureHandle(object);
+            objects.push(object);
+          } else {
+            //console.warn("Unhandled object " + curr.value);
+            curr = scanner.next();
+            continue;
+          }
+        } else {
+          // ignored lines from unsupported object
+          curr = scanner.next();
+        }
+      }
+      return objects;
+    }
 
     /**
      * Is called after the parser first reads the 0:ENTITIES group. The scanner
@@ -3213,8 +3347,6 @@ export class DXFLibLoader extends Loader {
           pushWithYUp(indexes, face[0], face[i - 1], face[i]);
         }
       });
-
-      console.log(indexes);
 
       geometry.setIndex(indexes);
       geometry.setAttribute(
