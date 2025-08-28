@@ -56,13 +56,10 @@ const loader = new DXFLibLoader();
 loader.load(
   "/public/models/model.dxf",
   (result) => {
-    console.log("loaded");
     scene.add(result.model);
     focusOnObject(result.model);
   },
-  () => {
-    console.log("loading...");
-  },
+  () => {},
   (e) => {
     console.log(e);
   }
