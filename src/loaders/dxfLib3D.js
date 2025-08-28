@@ -803,6 +803,194 @@ function parse3dVertices(scanner, curr) {
   return vertices;
 }
 
+//https://documentation.help/AutoCAD-DXF/WS1a9193826455f5ff18cb41610ec0a2e719-79b4.htm
+const DictionaryParser = /** @class */ (function () {
+  function DictionaryParser() {
+    this.ForEntityName = "DICTIONARY";
+  }
+
+  DictionaryParser.prototype.parseEntity = function (scanner, curr) {
+    const entity = { type: curr.value };
+    const entries = {};
+    curr = scanner.next();
+    while (!scanner.isEOF()) {
+      if (curr.code === 0) {
+        break;
+      }
+      switch (curr.code) {
+        case 1:
+          entity.name = curr.value;
+          break;
+        case 100:
+          entity.subclassMarker = curr.value;
+          break;
+        case 280:
+          entity.hardOwnerFlag = curr.value;
+          //If set to 1, indicates that elements of the dictionary are to be treated as hard-owned
+          break;
+        case 281:
+          entity.duplicateRecordCloningFlag = curr.value;
+          //determines how to merge duplicate entries
+          //0 = Not applicable 1 = Keep existing 2 = Use clone 3 = <xref>$0$<name> 4 = $0$<name> 5 = Unmangle name
+          break;
+        case 3:
+          const name = curr.value;
+          curr = scanner.next();
+          entries[name] = curr.value;
+          break;
+        default: // check common entity attributes
+          checkCommonEntityProperties(entity, curr, scanner);
+          break;
+      }
+      curr = scanner.next();
+    }
+    entity.entries = entries;
+    return entity;
+  };
+  return DictionaryParser;
+})();
+
+//https://documentation.help/AutoCAD-DXF/WS1a9193826455f5ff18cb41610ec0a2e719-7976.htm
+const VisualStyleParser = /** @class */ (function () {
+  function VisualStyleParser() {
+    this.ForEntityName = "VISUALSTYLE";
+  }
+
+  VisualStyleParser.prototype.parseEntity = function (scanner, curr) {
+    const entity = { type: curr.value };
+    curr = scanner.next();
+
+    entity.faceModifiers = [];
+    entity.faceOpacityLevel = [];
+    entity.edgeHidePrecisionFlag = [];
+    entity.some176 = [];
+    while (!scanner.isEOF()) {
+      if (curr.code === 0) {
+        break;
+      }
+      switch (curr.code) {
+        case 1:
+          entity.name = curr.value;
+          break;
+        case 2:
+          entity.description = curr.value;
+          break;
+        case 100:
+          entity.subclassMarker = curr.value;
+          break;
+        case 71:
+          entity.faceLightingModel = curr.value;
+          // 0 = Invisible, 1 = Visible, 2 = Phong, 3 = Gooch
+          break;
+        case 72:
+          entity.faceLightingQuality = curr.value;
+          // 0 = No lighting, 1 = Per face, 2 = Per vertex
+          break;
+        case 73:
+          entity.faceColorMode = curr.value;
+          // 0 = No color, 1 = Object color, 2 = Background color,
+          // 3 = Custom color, 4 = Mono color, 5 = Tinted, 6 = Desaturated
+          break;
+        case 90:
+          entity.faceModifiers.push(curr.value);
+          // 0 = No modifiers, 1 = Opacity, 2 = Specular
+          break;
+        case 40:
+          entity.faceOpacityLevel.push(curr.value);
+          break;
+        case 41:
+          entity.faceSpecularLevel = curr.value;
+          break;
+        case 63:
+          entity.colorIndex2 = curr.value;
+          break;
+        case 421:
+          entity.faceStyleMonoColor = curr.value;
+          break;
+        case 74:
+          entity.edgeStyleModel = curr.value;
+          // 0 = No edges, 1 = Isolines, 2 = Facet edges
+          break;
+        case 91:
+          entity.edgeStyle = curr.value;
+          break;
+        case 64:
+          entity.edgeIntersectionColor = curr.value;
+          break;
+        case 65:
+          entity.edgeObscuredColor = curr.value;
+          break;
+        case 75:
+          entity.edgeObscuredLinetype = curr.value;
+          break;
+        case 175:
+          entity.edgeIntersectionLinetype = curr.value;
+          break;
+        case 42:
+          entity.edgeCreaseAngle = curr.value;
+          break;
+        case 92:
+          entity.edgeModifiers = curr.value;
+          break;
+        case 66:
+          entity.edgeColor = curr.value;
+          break;
+        case 43:
+          entity.edgeOpacityLevel = curr.value;
+          break;
+        case 76:
+          entity.edgeWidth = curr.value;
+          break;
+        case 77:
+          entity.edgeOverhang = curr.value;
+          break;
+        case 78:
+          entity.edgeJitter = curr.value;
+          break;
+        case 67:
+          entity.edgeSilhouetteColor = curr.value;
+          break;
+        case 79:
+          entity.edgeSilhouetteWidth = curr.value;
+          break;
+        case 170:
+          entity.edgeHaloGap = curr.value;
+          break;
+        case 171:
+          entity.edgeIsolinesCount = curr.value;
+          break;
+        case 290:
+          entity.edgeHidePrecisionFlag.push(curr.value);
+          break;
+        case 174:
+          entity.edgeStyleApplyFlag = curr.value;
+          break;
+        case 93:
+          entity.displayStyleSettings = curr.value;
+          break;
+        case 44:
+          entity.brightness = curr.value;
+          break;
+        case 173:
+          entity.shadowType = curr.value;
+          break;
+        case 291:
+          entity.internalUseFlag = curr.value;
+          break;
+        case 176:
+          entity.some176.push(curr.value);
+          break;
+        default: // check common entity attributes
+          checkCommonEntityProperties(entity, curr, scanner);
+          break;
+      }
+      curr = scanner.next();
+    }
+    return entity;
+  };
+  return VisualStyleParser;
+})();
+
 //https://documentation.help/AutoCAD-DXF/WS1a9193826455f5ff18cb41610ec0a2e719-799c.htm
 const MaterialParser = /** @class */ (function () {
   function MaterialParser() {
@@ -1994,6 +2182,8 @@ function registerDefaultEntityHandlers(dxfParser) {
   dxfParser.registerEntityHandler(TextParser);
   dxfParser.registerEntityHandler(MeshParser);
   dxfParser.registerEntityHandler(MaterialParser);
+  dxfParser.registerEntityHandler(VisualStyleParser);
+  dxfParser.registerEntityHandler(DictionaryParser);
 }
 
 function logUnhandledGroup(curr) {
@@ -2578,9 +2768,12 @@ const DxfParser = /** @class */ (function () {
      * @return {Array} the resulting entities
      */
     function parseObjects() {
-      const objects = [];
+      let root;
+      const objects = {};
+      const dictionaries = {};
       const endingOnValue = "ENDSEC";
       curr = scanner.next();
+
       while (true) {
         if (curr.code === 0) {
           if (curr.value === endingOnValue) {
@@ -2591,9 +2784,17 @@ const DxfParser = /** @class */ (function () {
             const object = handler.parseEntity(scanner, curr);
             curr = scanner.lastReadGroup;
             ensureHandle(object);
-            objects.push(object);
+            if (object.ownerHandle == "0") {
+              root = object;
+              continue;
+            }
+            if (object.type == "DICTIONARY")
+              dictionaries[object.handle] = object;
+            else {
+              objects[object.handle] = object;
+            }
           } else {
-            //console.warn("Unhandled object " + curr.value);
+            console.warn("Unhandled object " + curr.value);
             curr = scanner.next();
             continue;
           }
@@ -2602,7 +2803,25 @@ const DxfParser = /** @class */ (function () {
           curr = scanner.next();
         }
       }
-      return objects;
+
+      Object.entries(dictionaries).forEach((dictEntry) => {
+        const dictHandle = dictEntry[0];
+        const dictValue = dictEntry[1];
+        Object.entries(dictValue.entries).forEach((entry) => {
+          const name = entry[0];
+          const handle = entry[1];
+          if (objects[handle])
+            dictionaries[dictHandle].entries[name] = objects[handle];
+        });
+      });
+
+      Object.entries(root.entries).forEach((entry) => {
+        const name = entry[0];
+        const handle = entry[1];
+        if (dictionaries[handle]) root.entries[name] = dictionaries[handle];
+      });
+
+      return root;
     }
 
     /**
@@ -2971,6 +3190,9 @@ export class DXFLibLoader extends Loader {
    */
   loadEntities(data, font, enableLayer) {
     createLineTypeShaders(data);
+
+    //TODO
+    //createVisualStyles(data);
 
     const entities = [];
     const layers = {};

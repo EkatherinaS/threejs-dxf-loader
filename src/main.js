@@ -57,6 +57,7 @@ loader.load(
   "/public/models/model.dxf",
   (result) => {
     console.log("loaded");
+    console.log(result.dxf);
     scene.add(result.model);
     focusOnObject(result.model);
   },
