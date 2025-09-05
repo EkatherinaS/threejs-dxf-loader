@@ -4,6 +4,7 @@ import {
   FileLoader,
   LineBasicMaterial,
   BufferGeometry,
+  LineDashedMaterial,
   Line,
   Vector2,
   Float32BufferAttribute,
@@ -3931,7 +3932,7 @@ export class DXFLibLoader extends Loader {
           points.push.apply(points, bulgePoints);
         } else {
           vertex = entity.vertices[i];
-          points.push(new Vector3(vertex.x, vertex.y, vertex.z));
+          pushWithYUp(points, vertex.x, vertex.y, vertex.z);
         }
       }
       if (entity.shape) {
@@ -3956,7 +3957,8 @@ export class DXFLibLoader extends Loader {
         });
       }
 
-      const geometry = new BufferGeometry().setFromPoints(points);
+      const geometry = new BufferGeometry();
+      geometry.setAttribute("position", new Float32BufferAttribute(points, 3));
 
       line = new Line(geometry, material);
       return line;
