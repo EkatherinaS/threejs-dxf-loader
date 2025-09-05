@@ -11,7 +11,6 @@ import {
   MeshBasicMaterial,
   Mesh,
   MeshPhysicalMaterial,
-  LineDashedMaterial,
   Group,
   DoubleSide,
   Object3D,
