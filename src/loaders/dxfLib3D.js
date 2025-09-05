@@ -709,90 +709,7 @@ const EllipseParser = /** @class */ (function () {
   return EllipseParser;
 })();
 
-function parseValues(scanner, curr, code) {
-  const values = [];
-  if (curr.code != code) curr = scanner.next();
-  while (true) {
-    if (curr.code != code) {
-      scanner.rewind();
-      return values;
-    }
-    values.push(curr.value);
-    curr = scanner.next();
-  }
-}
-
-function parse3dEdges(scanner, curr) {
-  const edges = [];
-  const count = curr.value;
-  curr = scanner.next();
-  for (let i = 0; i < count; i++) {
-    const edge = [];
-    for (let j = 0; j < 2; j++) {
-      if (curr.code != 90) {
-        scanner.rewind();
-        return edges;
-      }
-      curr = scanner.next();
-      edge.push(curr.value);
-    }
-    edges.push(edge);
-  }
-  scanner.rewind();
-  return edges;
-}
-
-function parse3dFaces(scanner, curr) {
-  const faces = [];
-  let count = curr.value;
-  curr = scanner.next();
-  while (count > 0) {
-    const face = [];
-    let faceCount = curr.value;
-    count -= faceCount + 1;
-    for (let i = 0; i < faceCount; i++) {
-      curr = scanner.next();
-      face.push(curr.value);
-    }
-    curr = scanner.next();
-    faces.push(face);
-  }
-  scanner.rewind();
-  return faces;
-}
-
-function parse3dVertices(scanner, curr) {
-  const vertices = [];
-  let vertexIsFinished = false;
-  const count = curr.value;
-  curr = scanner.next();
-  for (let i = 0; i < count; i++) {
-    const vertex = {};
-    while (!vertexIsFinished) {
-      switch (curr.code) {
-        case 10: // X
-          vertex.x = curr.value;
-          break;
-        case 20: // Y
-          vertex.y = curr.value;
-          break;
-        case 30: // Z
-          vertex.z = curr.value;
-          vertexIsFinished = true;
-          break;
-        default:
-          return vertices;
-      }
-      curr = scanner.next();
-    }
-    vertices.push(vertex);
-    vertexIsFinished = false;
-  }
-  scanner.rewind();
-  return vertices;
-}
-
-//https://documentation.help/AutoCAD-DXF/WS1a9193826455f5ff18cb41610ec0a2e719-79b4.htm
+//https://help.autodesk.com/view/OARX/2024/ENU/?guid=GUID-40B92C63-26F0-485B-A9C2-B349099B26D0
 const DictionaryParser = /** @class */ (function () {
   function DictionaryParser() {
     this.ForEntityName = "DICTIONARY";
@@ -839,7 +756,7 @@ const DictionaryParser = /** @class */ (function () {
   return DictionaryParser;
 })();
 
-//https://documentation.help/AutoCAD-DXF/WS1a9193826455f5ff18cb41610ec0a2e719-7976.htm
+//https://help.autodesk.com/view/OARX/2024/ENU/?guid=GUID-8A8BF2C4-FC56-44EC-A8C4-A60CE33A530C
 const VisualStyleParser = /** @class */ (function () {
   function VisualStyleParser() {
     this.ForEntityName = "VISUALSTYLE";
@@ -983,10 +900,23 @@ const VisualStyleParser = /** @class */ (function () {
   return VisualStyleParser;
 })();
 
-//https://documentation.help/AutoCAD-DXF/WS1a9193826455f5ff18cb41610ec0a2e719-799c.htm
+//https://help.autodesk.com/view/OARX/2024/ENU/?guid=GUID-E540C5BB-E166-44FA-B36C-5C739878B272
 const MaterialParser = /** @class */ (function () {
   function MaterialParser() {
     this.ForEntityName = "MATERIAL";
+  }
+
+  function parseValues(scanner, curr, code) {
+    const values = [];
+    if (curr.code != code) curr = scanner.next();
+    while (true) {
+      if (curr.code != code) {
+        scanner.rewind();
+        return values;
+      }
+      values.push(curr.value);
+      curr = scanner.next();
+    }
   }
 
   MaterialParser.prototype.parseEntity = function (scanner, curr) {
@@ -1315,10 +1245,93 @@ const MaterialParser = /** @class */ (function () {
   return MaterialParser;
 })();
 
-//https://ezdxf.readthedocs.io/en/stable/dxfinternals/entities/mesh.html#mesh-internals
+//http://help.autodesk.com/view/OARX/2024/ENU/?guid=GUID-4B9ADA67-87C8-4673-A579-6E4C76FF7025
 const MeshParser = /** @class */ (function () {
   function MeshParser() {
     this.ForEntityName = "MESH";
+  }
+
+  function parseValues(scanner, curr, code) {
+    const values = [];
+    if (curr.code != code) curr = scanner.next();
+    while (true) {
+      if (curr.code != code) {
+        scanner.rewind();
+        return values;
+      }
+      values.push(curr.value);
+      curr = scanner.next();
+    }
+  }
+
+  function parse3dEdges(scanner, curr) {
+    const edges = [];
+    const count = curr.value;
+    curr = scanner.next();
+    for (let i = 0; i < count; i++) {
+      const edge = [];
+      for (let j = 0; j < 2; j++) {
+        if (curr.code != 90) {
+          scanner.rewind();
+          return edges;
+        }
+        curr = scanner.next();
+        edge.push(curr.value);
+      }
+      edges.push(edge);
+    }
+    scanner.rewind();
+    return edges;
+  }
+
+  function parse3dFaces(scanner, curr) {
+    const faces = [];
+    let count = curr.value;
+    curr = scanner.next();
+    while (count > 0) {
+      const face = [];
+      let faceCount = curr.value;
+      count -= faceCount + 1;
+      for (let i = 0; i < faceCount; i++) {
+        curr = scanner.next();
+        face.push(curr.value);
+      }
+      curr = scanner.next();
+      faces.push(face);
+    }
+    scanner.rewind();
+    return faces;
+  }
+
+  function parse3dVertices(scanner, curr) {
+    const vertices = [];
+    let vertexIsFinished = false;
+    const count = curr.value;
+    curr = scanner.next();
+    for (let i = 0; i < count; i++) {
+      const vertex = {};
+      while (!vertexIsFinished) {
+        switch (curr.code) {
+          case 10: // X
+            vertex.x = curr.value;
+            break;
+          case 20: // Y
+            vertex.y = curr.value;
+            break;
+          case 30: // Z
+            vertex.z = curr.value;
+            vertexIsFinished = true;
+            break;
+          default:
+            return vertices;
+        }
+        curr = scanner.next();
+      }
+      vertices.push(vertex);
+      vertexIsFinished = false;
+    }
+    scanner.rewind();
+    return vertices;
   }
 
   MeshParser.prototype.parseEntity = function (scanner, curr) {
@@ -3439,9 +3452,6 @@ export class DXFLibLoader extends Loader {
    */
   loadEntities(data, font, enableLayer) {
     createLineTypeShaders(data);
-
-    //TODO
-    //createVisualStyles(data);
 
     const entities = [];
     const layers = {};

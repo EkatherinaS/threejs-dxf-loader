@@ -18,7 +18,7 @@ function focusOnObject(object) {
   const box = new THREE.Box3().setFromObject(object);
   const size = box.getSize(new THREE.Vector3());
   const center = box.getCenter(new THREE.Vector3());
-  const distance = Math.max(size.x, size.y, size.z);
+  const distance = (Math.max(size.x, size.y, size.z) * 3) / 4;
   camera.position.set(
     center.x - distance,
     center.y + distance,
