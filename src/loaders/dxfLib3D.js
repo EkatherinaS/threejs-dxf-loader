@@ -709,91 +709,629 @@ const EllipseParser = /** @class */ (function () {
   return EllipseParser;
 })();
 
-function parse3dCreases(scanner, curr) {
-  const creases = [];
-  const count = curr.value;
-  curr = scanner.next();
-  for (let i = 0; i < count; i++) {
-    if (curr.code != 140) return creases;
-    creases.push(curr.value);
+//https://help.autodesk.com/view/OARX/2024/ENU/?guid=GUID-40B92C63-26F0-485B-A9C2-B349099B26D0
+const DictionaryParser = /** @class */ (function () {
+  function DictionaryParser() {
+    this.ForEntityName = "DICTIONARY";
+  }
+
+  DictionaryParser.prototype.parseEntity = function (scanner, curr) {
+    const entity = { type: curr.value };
+    const entries = {};
     curr = scanner.next();
-  }
-  scanner.rewind();
-  return creases;
-}
-
-function parse3dEdges(scanner, curr) {
-  const edges = [];
-  const count = curr.value;
-  curr = scanner.next();
-  for (let i = 0; i < count; i++) {
-    const edge = [];
-    for (let j = 0; j < 2; j++) {
-      if (curr.code != 90) return edges;
-      curr = scanner.next();
-      edge.push(curr.value);
-    }
-    edges.push(edge);
-  }
-  scanner.rewind();
-  return edges;
-}
-
-function parse3dFaces(scanner, curr) {
-  const faces = [];
-  const count = curr.value;
-  curr = scanner.next();
-  for (let i = 0; i < count; i++) {
-    const face = [];
-    let faceCount = curr.value;
-    while (faceCount > 0) {
-      if (curr.code != 90) return faces;
-      curr = scanner.next();
-      faceCount--;
-      face.push(curr.value);
-    }
-    faces.push(face);
-    curr = scanner.next();
-  }
-  scanner.rewind();
-  return faces;
-}
-
-function parse3dVertices(scanner, curr) {
-  const vertices = [];
-  let vertexIsFinished = false;
-  const count = curr.value;
-  curr = scanner.next();
-  for (let i = 0; i < count; i++) {
-    const vertex = {};
-    while (!vertexIsFinished) {
+    while (!scanner.isEOF()) {
+      if (curr.code === 0) {
+        break;
+      }
       switch (curr.code) {
-        case 10: // X
-          vertex.x = curr.value;
+        case 1:
+          entity.name = curr.value;
           break;
-        case 20: // Y
-          vertex.y = curr.value;
+        case 100:
+          entity.subclassMarker = curr.value;
           break;
-        case 30: // Z
-          vertex.z = curr.value;
-          vertexIsFinished = true;
+        case 280:
+          entity.hardOwnerFlag = curr.value;
+          //If set to 1, indicates that elements of the dictionary are to be treated as hard-owned
           break;
-        default:
-          return vertices;
+        case 281:
+          entity.duplicateRecordCloningFlag = curr.value;
+          //determines how to merge duplicate entries
+          //0 = Not applicable 1 = Keep existing 2 = Use clone 3 = <xref>$0$<name> 4 = $0$<name> 5 = Unmangle name
+          break;
+        case 3:
+          const name = curr.value;
+          curr = scanner.next();
+          entries[name] = curr.value;
+          break;
+        default: // check common entity attributes
+          checkCommonEntityProperties(entity, curr, scanner);
+          break;
       }
       curr = scanner.next();
     }
-    vertices.push(vertex);
-    vertexIsFinished = false;
-  }
-  scanner.rewind();
-  return vertices;
-}
+    entity.entries = entries;
+    return entity;
+  };
+  return DictionaryParser;
+})();
 
-//https://ezdxf.readthedocs.io/en/stable/dxfinternals/entities/mesh.html#mesh-internals
+//https://help.autodesk.com/view/OARX/2024/ENU/?guid=GUID-8A8BF2C4-FC56-44EC-A8C4-A60CE33A530C
+const VisualStyleParser = /** @class */ (function () {
+  function VisualStyleParser() {
+    this.ForEntityName = "VISUALSTYLE";
+  }
+
+  VisualStyleParser.prototype.parseEntity = function (scanner, curr) {
+    const entity = { type: curr.value };
+    curr = scanner.next();
+
+    entity.faceModifiers = [];
+    entity.faceOpacityLevel = [];
+    entity.edgeHidePrecisionFlag = [];
+    entity.some176 = [];
+
+    while (!scanner.isEOF()) {
+      if (curr.code === 0) {
+        break;
+      }
+      if (!entity[curr.code]) entity[curr.code] = [];
+      entity[curr.code].push(curr.value);
+      switch (curr.code) {
+        case 1:
+          entity.name = curr.value;
+          break;
+        case 2:
+          entity.description = curr.value;
+          break;
+        case 100:
+          entity.subclassMarker = curr.value;
+          break;
+        case 71:
+          entity.faceLightingModel = curr.value;
+          // 0 = Invisible, 1 = Visible, 2 = Phong, 3 = Gooch
+          break;
+        case 72:
+          entity.faceLightingQuality = curr.value;
+          // 0 = No lighting, 1 = Per face, 2 = Per vertex
+          break;
+        case 73:
+          entity.faceColorMode = curr.value;
+          // 0 = No color, 1 = Object color, 2 = Background color,
+          // 3 = Custom color, 4 = Mono color, 5 = Tinted, 6 = Desaturated
+          break;
+        case 90:
+          entity.faceModifiers.push(curr.value);
+          // 0 = No modifiers, 1 = Opacity, 2 = Specular
+          break;
+        case 40:
+          entity.faceOpacityLevel.push(curr.value);
+          break;
+        case 41:
+          entity.faceSpecularLevel = curr.value;
+          break;
+        case 63:
+          entity.colorIndex2 = curr.value;
+          break;
+        case 421:
+          entity.faceStyleMonoColor = curr.value;
+          break;
+        case 74:
+          entity.edgeStyleModel = curr.value;
+          // 0 = No edges, 1 = Isolines, 2 = Facet edges
+          break;
+        case 91:
+          entity.edgeStyle = curr.value;
+          break;
+        case 64:
+          entity.edgeIntersectionColor = curr.value;
+          break;
+        case 65:
+          entity.edgeObscuredColor = curr.value;
+          break;
+        case 75:
+          entity.edgeObscuredLinetype = curr.value;
+          break;
+        case 175:
+          entity.edgeIntersectionLinetype = curr.value;
+          break;
+        case 42:
+          entity.edgeCreaseAngle = curr.value;
+          break;
+        case 92:
+          entity.edgeModifiers = curr.value;
+          break;
+        case 66:
+          entity.edgeColor = curr.value;
+          break;
+        case 43:
+          entity.edgeOpacityLevel = curr.value;
+          break;
+        case 76:
+          entity.edgeWidth = curr.value;
+          break;
+        case 77:
+          entity.edgeOverhang = curr.value;
+          break;
+        case 78:
+          entity.edgeJitter = curr.value;
+          break;
+        case 67:
+          entity.edgeSilhouetteColor = curr.value;
+          break;
+        case 79:
+          entity.edgeSilhouetteWidth = curr.value;
+          break;
+        case 170:
+          entity.edgeHaloGap = curr.value;
+          break;
+        case 171:
+          entity.edgeIsolinesCount = curr.value;
+          break;
+        case 290:
+          entity.edgeHidePrecisionFlag.push(curr.value);
+          break;
+        case 174:
+          entity.edgeStyleApplyFlag = curr.value;
+          break;
+        case 93:
+          entity.displayStyleSettings = curr.value;
+          break;
+        case 44:
+          entity.brightness = curr.value;
+          break;
+        case 173:
+          entity.shadowType = curr.value;
+          break;
+        case 291:
+          entity.internalUseFlag = curr.value;
+          break;
+        case 176:
+          entity.some176.push(curr.value);
+          break;
+        default: // check common entity attributes
+          checkCommonEntityProperties(entity, curr, scanner);
+          break;
+      }
+      curr = scanner.next();
+    }
+    return entity;
+  };
+  return VisualStyleParser;
+})();
+
+//https://help.autodesk.com/view/OARX/2024/ENU/?guid=GUID-E540C5BB-E166-44FA-B36C-5C739878B272
+const MaterialParser = /** @class */ (function () {
+  function MaterialParser() {
+    this.ForEntityName = "MATERIAL";
+  }
+
+  function parseValues(scanner, curr, code) {
+    const values = [];
+    if (curr.code != code) curr = scanner.next();
+    while (true) {
+      if (curr.code != code) {
+        scanner.rewind();
+        return values;
+      }
+      values.push(curr.value);
+      curr = scanner.next();
+    }
+  }
+
+  MaterialParser.prototype.parseEntity = function (scanner, curr) {
+    const entity = { type: curr.value, dictionaries: [], reacors: [] };
+    curr = scanner.next();
+    while (!scanner.isEOF()) {
+      if (curr.code === 0) {
+        break;
+      }
+      switch (curr.code) {
+        case 1:
+          entity.name = curr.value;
+          break;
+        case 2:
+          entity.description = curr.value;
+          break;
+        case 70:
+          entity.ambientColorMethod = curr.value; // 0 = Use current color, 1 = Override
+          break;
+        case 40:
+          entity.ambientColorFactor = curr.value; // 0.0 to 1.0
+          break;
+        case 90:
+          entity.ambientColorValue = curr.value; // uint32 color value
+          break;
+        case 71:
+          entity.diffuseColorMethod = curr.value;
+          break;
+        case 41:
+          entity.diffuseColorFactor = curr.value;
+          break;
+        case 91:
+          entity.diffuseColorValue = curr.value;
+          break;
+        case 42:
+          entity.diffuseMapBlendFactor = curr.value;
+          break;
+        case 72:
+          entity.diffuseMapSource = curr.value; // 0=scene,1=file,null = no map
+          break;
+        case 3:
+          // Diffuse map file name (default null)
+          // Note: code 3 appears multiple times in the list for different maps.
+          // We need context to distinguish, but for diffuse it's 3.
+          // For normal map source filename also 3; must disambiguate if needed
+          if (!entity.diffuseMapFileName) {
+            entity.diffuseMapFileName = curr.value;
+          } else if (!entity.normalMapSourceFileName) {
+            entity.normalMapSourceFileName = curr.value;
+          }
+          break;
+        case 73:
+          entity.diffuseMapProjectionMethod = curr.value; // 1=Planar,2=Box,3=Cylinder,4=Sphere
+          break;
+        case 74:
+          entity.diffuseMapTilingMethod = curr.value; // 1=Tile,2=Crop,3=Clamp
+          break;
+        case 75:
+          entity.diffuseMapAutoTransformMethod = curr.value; // bitset 1=No transform,2=scale+translate,4=include block transform
+          break;
+        case 43:
+          entity.diffuseMapTransformMatrix = parseValues(scanner, curr, 43);
+          break;
+        case 44:
+          entity.specularGlossFactor = curr.value; // real, default 0.5
+          break;
+        case 76:
+          entity.specularColorMethod = curr.value; // 0=Use current color, 1=Override
+          break;
+        case 45:
+          entity.specularColorFactor = curr.value; // 0.0 to 1.0
+          break;
+        case 92:
+          entity.specularColorValue = curr.value; // uint32 color
+          break;
+        case 46:
+          entity.specularMapBlendFactor = curr.value; // real, default 1.0
+          break;
+        case 77:
+          entity.specularMapSource = curr.value;
+          break;
+        case 4:
+          entity.specularMapFileName = curr.value;
+          break;
+        case 78:
+          entity.specularMapProjectionMethod = curr.value;
+          break;
+        case 79:
+          entity.specularMapTilingMethod = curr.value;
+          break;
+        case 170:
+          entity.specularMapAutoTransformMethod = curr.value;
+          break;
+        case 47:
+          entity.transformMatrixOfSpecularMapMapper = parseValues(
+            scanner,
+            curr,
+            47
+          );
+          break;
+        case 48:
+          entity.reflectionMapBlendFactor = curr.value; // real, default 1.0
+          break;
+        case 171:
+          entity.reflectionMapSource = curr.value;
+          break;
+        case 6:
+          entity.reflectionMapFileName = curr.value;
+          break;
+        case 172:
+          entity.reflectionMapProjectionMethod = curr.value;
+          break;
+        case 173:
+          entity.reflectionMapTilingMethod = curr.value;
+          break;
+        case 174:
+          entity.reflectionMapAutoTransformMethod = curr.value;
+          break;
+        case 49:
+          entity.transformMatrixOfReflectionMapMapper = parseValues(
+            scanner,
+            curr,
+            49
+          );
+          break;
+        case 140:
+          entity.opacity = curr.value; // real, default 1.0
+          break;
+        case 141:
+          entity.opacityMapBlendFactor = curr.value; // real, default 1.0
+          break;
+        case 175:
+          entity.opacityMapSource = curr.value;
+          break;
+        case 7:
+          entity.opacityMapFileName = curr.value;
+          break;
+        case 176:
+          entity.opacityMapProjectionMethod = curr.value;
+          break;
+        case 177:
+          entity.opacityMapTilingMethod = curr.value;
+          break;
+        case 178:
+          entity.opacityMapAutoTransformMethod = curr.value;
+          break;
+        case 142:
+          entity.transformMatrixOfOpacityMapMapper = parseValues(
+            scanner,
+            curr,
+            142
+          );
+          break;
+        case 143:
+          entity.bumpMapBlendFactor = curr.value; // real, default 1.0
+          break;
+        case 179:
+          entity.bumpMapSource = curr.value;
+          break;
+        case 8:
+          entity.bumpMapFileName = curr.value;
+          break;
+        case 270:
+          entity.bumpMapProjectionMethod = curr.value;
+          break;
+        case 271:
+          entity.bumpMapTilingMethod = curr.value;
+          break;
+        case 272:
+          entity.bumpMapAutoTransformMethod = curr.value;
+          break;
+        case 144:
+          entity.transformMatrixOfBumpMapMapper = parseValues(
+            scanner,
+            curr,
+            144
+          );
+          break;
+        case 145:
+          entity.refractionIndex = curr.value; // real, default 1.0
+          break;
+        case 146:
+          entity.refractionMapBlendFactor = curr.value;
+          break;
+        case 273:
+          entity.refractionMapSource = curr.value;
+          break;
+        case 9:
+          entity.refractionMapFileName = curr.value;
+          break;
+        case 274:
+          entity.refractionMapProjectionMethod = curr.value;
+          break;
+        case 275:
+          entity.refractionMapTilingMethod = curr.value;
+          break;
+        case 276:
+          entity.refractionMapAutoTransformMethod = curr.value;
+          break;
+        case 147:
+          entity.transformMatrixOfRefractionMapMapper = parseValues(
+            scanner,
+            curr,
+            147
+          );
+          break;
+        case 460:
+          entity.colorBleedScale = curr.value;
+          break;
+        case 461:
+          entity.indirectDumpScale = curr.value;
+          break;
+        case 462:
+          entity.reflectanceScale = curr.value;
+          break;
+        case 463:
+          entity.transmittanceScale = curr.value;
+          break;
+        case 290:
+          entity.twoSidedMaterial = curr.value !== 0;
+          break;
+        case 464:
+          entity.luminance = curr.value;
+          break;
+        case 270: // Luminance mode (conflicts with bump map projection code 270, but rare use, last wins)
+          entity.luminanceMode = curr.value;
+          break;
+        case 271: // Normal map method (conflicts with bump map tiling)
+          entity.normalMapMethod = curr.value;
+          break;
+        case 465:
+          entity.normalMapStrength = curr.value;
+          break;
+        case 42:
+          entity.normalMapBlendFactor = curr.value;
+          break;
+        case 72:
+          entity.normalMapSource = curr.value;
+          break;
+        case 3:
+          entity.normalMapSourceFileName = curr.value;
+          break;
+        case 73:
+          entity.normalMapperProjection = curr.value;
+          break;
+        case 74:
+          entity.normalMapperTiling = curr.value;
+          break;
+        case 75:
+          entity.normalMapperAutoTransform = curr.value;
+          break;
+        case 43:
+          entity.normalMapperTransform = parseValues(scanner, curr, 43);
+          break;
+        case 293:
+          entity.materialsAnonymous = curr.value;
+          break;
+        case 272:
+          entity.globalIlluminationMode = curr.value;
+          break;
+        case 273:
+          entity.finalGatherMode = curr.value;
+          break;
+        case 300:
+          entity.genProcName = curr.value;
+          break;
+        case 291:
+          entity.genProcValBool = curr.value;
+          break;
+        case 271:
+          entity.genProcValInt = curr.value;
+          break;
+        case 469:
+          entity.genProcValReal = curr.value;
+          break;
+        case 301:
+          entity.genProcValText = curr.value;
+          break;
+        case 292:
+          entity.genProcTableEnd = curr.value;
+          break;
+        case 62:
+          entity.genProcValColorIndex = curr.value;
+          break;
+        case 420:
+          entity.genProcValColorRGB = curr.value;
+          break;
+        case 430:
+          entity.genProcValColorName = curr.value;
+          break;
+        case 148:
+          entity.translucence = curr.value;
+          break;
+        case 90:
+          entity.selfIllumination = curr.value;
+          break;
+        case 468:
+          entity.reflectivity = curr.value;
+          break;
+        case 93:
+          entity.illuminationModel = curr.value;
+          break;
+        case 94:
+          entity.channelFlags = curr.value;
+          break;
+        case 102:
+          if (curr.value == "{ACAD_XDICTIONARY") {
+            curr = scanner.next();
+            entity.dictionaries.push(curr.value);
+          }
+          if (curr.value == "{ACAD_REACTORS") {
+            curr = scanner.next();
+            entity.reacors.push(curr.value);
+          }
+          curr = scanner.next();
+          break;
+        default: // check common entity attributes
+          checkCommonEntityProperties(entity, curr, scanner);
+          break;
+      }
+      curr = scanner.next();
+    }
+    return entity;
+  };
+
+  return MaterialParser;
+})();
+
+//http://help.autodesk.com/view/OARX/2024/ENU/?guid=GUID-4B9ADA67-87C8-4673-A579-6E4C76FF7025
 const MeshParser = /** @class */ (function () {
   function MeshParser() {
     this.ForEntityName = "MESH";
+  }
+
+  function parseValues(scanner, curr, code) {
+    const values = [];
+    if (curr.code != code) curr = scanner.next();
+    while (true) {
+      if (curr.code != code) {
+        scanner.rewind();
+        return values;
+      }
+      values.push(curr.value);
+      curr = scanner.next();
+    }
+  }
+
+  function parse3dEdges(scanner, curr) {
+    const edges = [];
+    const count = curr.value;
+    curr = scanner.next();
+    for (let i = 0; i < count; i++) {
+      const edge = [];
+      for (let j = 0; j < 2; j++) {
+        if (curr.code != 90) {
+          scanner.rewind();
+          return edges;
+        }
+        curr = scanner.next();
+        edge.push(curr.value);
+      }
+      edges.push(edge);
+    }
+    scanner.rewind();
+    return edges;
+  }
+
+  function parse3dFaces(scanner, curr) {
+    const faces = [];
+    let count = curr.value;
+    curr = scanner.next();
+    while (count > 0) {
+      const face = [];
+      let faceCount = curr.value;
+      count -= faceCount + 1;
+      for (let i = 0; i < faceCount; i++) {
+        curr = scanner.next();
+        face.push(curr.value);
+      }
+      curr = scanner.next();
+      faces.push(face);
+    }
+    scanner.rewind();
+    return faces;
+  }
+
+  function parse3dVertices(scanner, curr) {
+    const vertices = [];
+    let vertexIsFinished = false;
+    const count = curr.value;
+    curr = scanner.next();
+    for (let i = 0; i < count; i++) {
+      const vertex = {};
+      while (!vertexIsFinished) {
+        switch (curr.code) {
+          case 10: // X
+            vertex.x = curr.value;
+            break;
+          case 20: // Y
+            vertex.y = curr.value;
+            break;
+          case 30: // Z
+            vertex.z = curr.value;
+            vertexIsFinished = true;
+            break;
+          default:
+            return vertices;
+        }
+        curr = scanner.next();
+      }
+      vertices.push(vertex);
+      vertexIsFinished = false;
+    }
+    scanner.rewind();
+    return vertices;
   }
 
   MeshParser.prototype.parseEntity = function (scanner, curr) {
@@ -808,29 +1346,34 @@ const MeshParser = /** @class */ (function () {
           entity.version = curr.value;
           break;
         case 72:
-          entity.blend_crease = curr.value; //0 = off, 1 = on
+          entity.blendCrease = curr.value; //0 = off, 1 = on
           break;
         case 91:
-          entity.subdivision_levels = curr.value; //0 for no smoothing else integer greater than 0
+          entity.subdivisionLevels = curr.value; //0 for no smoothing else integer greater than 0
           break;
         case 92:
-          entity.vertex_count = curr.value;
-          entity.vertices = parse3dVertices(scanner, curr, entity.vertex_count);
+          entity.vertexCount = curr.value;
+          entity.vertices = parse3dVertices(scanner, curr, entity.vertexCount);
           curr = scanner.lastReadGroup;
           break;
         case 93:
-          entity.face_count = curr.value;
-          entity.faces = parse3dFaces(scanner, curr, entity.face_count);
+          entity.faceCount = curr.value;
+          entity.faces = parse3dFaces(scanner, curr, entity.faceCount);
           curr = scanner.lastReadGroup;
           break;
         case 94:
-          entity.edge_count = curr.value;
-          entity.edges = parse3dEdges(scanner, curr, entity.edge_count);
+          entity.edgeCount = curr.value;
+          entity.edges = parse3dEdges(scanner, curr, entity.edgeCount);
           curr = scanner.lastReadGroup;
           break;
         case 95:
-          entity.crease_count = curr.value;
-          entity.creases = parse3dCreases(scanner, curr, entity.crease_count);
+          entity.creaseCount = curr.value;
+          entity.creases = parseValues(scanner, curr, 140);
+          curr = scanner.lastReadGroup;
+          break;
+        case 90:
+          entity.overriddenPropertySubEntityCount = curr.value;
+          entity.overriddenPropertySubEntity = parseValues(scanner, curr, 91);
           curr = scanner.lastReadGroup;
           break;
         default: // check common entity attributes
@@ -843,6 +1386,27 @@ const MeshParser = /** @class */ (function () {
   };
   return MeshParser;
 })();
+
+function parseExtendedDataSentinel(scanner, curr) {
+  const data = {};
+  curr = scanner.next();
+  while (true) {
+    if (!data[curr.code]) data[curr.code] = [];
+    let value;
+    if (curr.code == 1002) {
+      if (curr.value == "{") value = parseExtendedDataSentinel(scanner, curr);
+      else {
+        curr = scanner.next();
+        scanner.rewind();
+        return data;
+      }
+    } else {
+      value = curr.value;
+    }
+    data[curr.code].push(value);
+    curr = scanner.next();
+  }
+}
 
 const InsertParser = /** @class */ (function () {
   function InsertParser() {
@@ -889,6 +1453,9 @@ const InsertParser = /** @class */ (function () {
           break;
         case 210:
           entity.extrusionDirection = parsePoint(scanner);
+          break;
+        case 1002:
+          entity.extrusionDirection = parseExtendedDataSentinel(scanner, curr);
           break;
         default: // check common entity attributes
           checkCommonEntityProperties(entity, curr, scanner);
@@ -1896,6 +2463,9 @@ function registerDefaultEntityHandlers(dxfParser) {
   dxfParser.registerEntityHandler(SplineParser);
   dxfParser.registerEntityHandler(TextParser);
   dxfParser.registerEntityHandler(MeshParser);
+  dxfParser.registerEntityHandler(MaterialParser);
+  dxfParser.registerEntityHandler(VisualStyleParser);
+  dxfParser.registerEntityHandler(DictionaryParser);
 }
 
 function logUnhandledGroup(curr) {
@@ -1970,8 +2540,10 @@ const DxfParser = /** @class */ (function () {
             //console.log('<');
           } else if (curr.value === "EOF") {
             //console.log('EOF');
+          } else if (curr.value === "OBJECTS") {
+            dxf.objects = parseObjects();
           } else {
-            //console.warn('Skipping section \'%s\'', curr.value);
+            //console.warn("Skipping section '%s'", curr.value);
           }
         } else {
           curr = scanner.next();
@@ -2327,9 +2899,9 @@ const DxfParser = /** @class */ (function () {
           case 0:
             // New ViewPort
             if (curr.value === "VPORT") {
-              console.log("}");
+              //console.log("}");
               viewPorts.push(viewPort);
-              console.log("ViewPort {");
+              //console.log("ViewPort {");
               viewPort = {};
               curr = scanner.next();
             }
@@ -2427,6 +2999,10 @@ const DxfParser = /** @class */ (function () {
             layer.color = Math.abs(curr.value);
             curr = scanner.next();
             break;
+          case 347: // Hard-pointer ID/handle to Material object
+            layer.material = curr.value;
+            curr = scanner.next();
+            break;
           case 0:
             // New Layer
             if (curr.value === "LAYER") {
@@ -2473,6 +3049,45 @@ const DxfParser = /** @class */ (function () {
     };
 
     /**
+     * Is called after the parser first reads the 0:OBJECTS group. The scanner
+     * should be on the start of the first entity already.
+     * @return {Array} the resulting entities
+     */
+    function parseObjects() {
+      const objects = {};
+      const endingOnValue = "ENDSEC";
+      let rootHandle;
+
+      //reading other objects
+      while (true) {
+        if (curr.code === 0) {
+          if (curr.value === endingOnValue) {
+            break;
+          }
+          const handler = self._entityHandlers[curr.value];
+          if (handler != null) {
+            const object = handler.parseEntity(scanner, curr);
+            if (!rootHandle) rootHandle = object.handle;
+            curr = scanner.lastReadGroup;
+            ensureHandle(object);
+            objects[object.handle] = object;
+          } else {
+            curr = scanner.next();
+            continue;
+          }
+        } else {
+          // ignored lines from unsupported entity
+          curr = scanner.next();
+        }
+      }
+      if (endingOnValue == "ENDSEC") {
+        curr = scanner.next();
+      } // swallow up ENDSEC, but not ENDBLK
+      const result = { root: rootHandle, entries: objects };
+      return result;
+    }
+
+    /**
      * Is called after the parser first reads the 0:ENTITIES group. The scanner
      * should be on the start of the first entity already.
      * @return {Array} the resulting entities
@@ -2497,7 +3112,6 @@ const DxfParser = /** @class */ (function () {
             ensureHandle(entity);
             entities.push(entity);
           } else {
-            //console.warn('Unhandled entity ' + curr.value);
             curr = scanner.next();
             continue;
           }
@@ -3195,13 +3809,47 @@ export class DXFLibLoader extends Loader {
       v.push(y, z, x);
     }
 
+    function getMaterial(entity, data) {
+      const root = data.objects.root;
+      const objectsDict = data.objects.entries;
+      const acadMat = objectsDict[root].entries.ACAD_MATERIAL;
+      const defaultMatHandle = objectsDict[acadMat].entries.ByLayer;
+      if (entity.materialObjectHandle) {
+        return objectsDict[entity.materialObjectHandle];
+      } else {
+        return objectsDict[defaultMatHandle];
+      }
+    }
+
+    function getMeshMaterial(entity, data) {
+      const color = getColor(entity, data);
+      const material = getMaterial(entity, data);
+
+      const opacity = material.opacity ? material.opacity : 1.0;
+      const reflectivity = material.reflectivity ? material.reflectivity : 0;
+      const translucence = material.translucence ? material.translucence : 0;
+      const specularGlossFactor = material.specularGlossFactor
+        ? material.specularGlossFactor
+        : 1.0;
+
+      return new MeshPhysicalMaterial({
+        side: DoubleSide,
+        color: color,
+        transparent: opacity < 1,
+        opacity: opacity,
+        roughness: 1 - specularGlossFactor,
+        reflectivity: reflectivity,
+        transmission: translucence,
+        thickness: 1.0,
+      });
+    }
+
     function drawMesh(entity, data) {
       if (!entity.vertices) {
         return console.log("entity missing vertices.");
       }
 
       const geometry = new BufferGeometry();
-      const color = getColor(entity, data);
       const vertices = [];
       const indexes = [];
 
@@ -3221,10 +3869,7 @@ export class DXFLibLoader extends Loader {
         new Float32BufferAttribute(vertices, 3)
       );
       geometry.computeVertexNormals();
-      const material = new MeshPhysicalMaterial({
-        side: DoubleSide,
-        color: color,
-      });
+      const material = getMeshMaterial(entity, data);
       const mesh = new Mesh(geometry, material);
       return mesh;
     }

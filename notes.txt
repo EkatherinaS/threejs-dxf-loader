@@ -1,0 +1,19 @@
+You cannot useDIRECT, LIGHT, AVE_RENDER, RM_SDB, SH_SPOT, and
+OVERHEAD as valid block names. These are used in lights and rendering
+objects.
+
+https://www.andrew.cmu.edu/course/48-568/PDFs/2D_AutoCAD.pdf
+
+Default Material
+
+Surfaces do not have material definitions assigned to them in new drawings created from scratch. 
+surfaces are rendered using the default global material if there is no specific material assigned.
+the default rendered color is based on the AutoCAD Color Index (ACI) color of the AutoCAD object (usually set BYLAYER).
+
+https://www.tutorial-autocad.com/assigning-materials-in-models
+
+
+The root owner of most objects appearing in the OBJECTS section is the named object dictionary, which is, 
+therefore, always the first object that appears in this section.
+
+https://help.autodesk.com/view/ACD/2015/ENU/?guid=GUID-CC1D6F91-42BF-4946-8D4B-6FC6A39100C5
